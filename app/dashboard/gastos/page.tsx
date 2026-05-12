@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { SkeletonList } from '@/components/Skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import PageHeader from '@/components/PageHeader'
 
 type Gasto = {
   id: string
@@ -39,7 +40,7 @@ const CATEGORIAS = [
   { valor: 'salud',      label: 'Salud',      Icon: Heart,           color: '#ef4444' },
   { valor: 'hogar',      label: 'Hogar',      Icon: Home,            color: '#a855f7' },
   { valor: 'servicios',  label: 'Servicios',  Icon: Zap,             color: '#facc15' },
-  { valor: 'otros',      label: 'Otros',      Icon: Package,         color: 'rgba(255,255,255,0.4)' },
+  { valor: 'otros',      label: 'Otros',      Icon: Package,         color: 'var(--color-ink-2)' },
 ]
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
@@ -193,12 +194,12 @@ export default function GastosPage() {
     ...c, total: gastosMes.filter(g => g.categoria === c.valor).reduce((acc, g) => acc + Number(g.monto), 0)
   })).filter(c => c.total > 0).sort((a, b) => b.total - a.total).slice(0, 4)
 
-  const inputCls = "w-full rounded-xl px-4 py-2.5 text-white placeholder-white/25 text-sm focus:ring-2 focus:ring-indigo-500/40 outline-none transition-all"
-  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }
-  const cardStyle = { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
+  const inputCls = "w-full px-0 py-2.5 text-sm focus:outline-none transition-all"
+  const inputStyle = { background: 'transparent', border: 0, borderBottom: '1.5px solid var(--color-ink)', borderRadius: 0, color: 'var(--color-ink)' }
+  const cardStyle = { background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)', borderRadius: 2 }
 
   return (
-    <div className="p-5 pb-4">
+    <div style={{ minHeight: '100vh' }}>
       <ConfirmDialog
         open={!!confirmId}
         title="Eliminar gasto"
@@ -206,20 +207,14 @@ export default function GastosPage() {
         onConfirm={() => confirmId && eliminarGasto(confirmId)}
         onCancel={() => setConfirmId(null)}
       />
-      <div className="max-w-lg mx-auto">
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-6 pt-2">
-          <Link href="/dashboard">
-            <motion.div whileTap={{ scale: 0.9 }} className="cursor-pointer p-1 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              <ArrowLeft className="w-5 h-5" />
-            </motion.div>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Wallet className="w-5 h-5" style={{ color: '#f59e0b' }} />
-            <h1 className="text-xl font-bold text-white">Dinero</h1>
-          </div>
-        </motion.div>
+      <PageHeader
+        sectionNum="04"
+        sectionLabel="Dinero"
+        right={`${MESES[mesActual].toUpperCase()} ${anioActual}`}
+        title="Libro de gastos."
+        sub={`${gastosMes.length} movimientos`}
+      />
+      <div className="page-content">
 
         {/* Navegación de mes */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="flex items-center justify-between mb-3">
@@ -227,7 +222,7 @@ export default function GastosPage() {
             whileTap={{ scale: 0.9 }}
             onClick={() => cambiarMes(-1)}
             className="cursor-pointer p-1.5 rounded-xl transition-all"
-            style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ color: 'var(--color-ink-2)', background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)' }}
           >
             <ChevronLeft className="w-4 h-4" />
           </motion.button>
@@ -240,7 +235,7 @@ export default function GastosPage() {
             onClick={() => cambiarMes(1)}
             disabled={esMesActual}
             className="cursor-pointer p-1.5 rounded-xl transition-all"
-            style={{ color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ color: 'var(--color-ink-2)', background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)' }}
           >
             <ChevronRight className={`w-4 h-4 ${esMesActual ? 'opacity-30' : ''}`} />
           </motion.button>
@@ -295,7 +290,7 @@ export default function GastosPage() {
                 <span>{Math.round(porcentaje)}% del límite</span>
                 <span>Límite: {formatMonto(presupuesto)}</span>
               </div>
-              <div className="rounded-full h-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+              <div className="rounded-full h-2" style={{ background: 'var(--color-paper)' }}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${porcentaje}%` }}
@@ -358,9 +353,9 @@ export default function GastosPage() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setEditandoAhorro(false)}
                         className="text-xs cursor-pointer"
-                        style={{ color: 'rgba(255,255,255,0.3)' }}
+                        style={{ color: 'var(--color-ink-2)' }}
                       >
-                        ✕
+                        âœ•
                       </motion.button>
                     </motion.div>
                   ) : (
@@ -398,10 +393,10 @@ export default function GastosPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               className="rounded-2xl p-4 mb-4 flex gap-2 items-end"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(245,158,11,0.2)' }}
+              style={{ background: 'var(--color-paper)', border: '1px solid rgba(245,158,11,0.2)' }}
             >
               <div className="flex-1">
-                <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Presupuesto mensual</label>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Presupuesto mensual</label>
                 <input
                   type="number"
                   placeholder="Ej: 50000"
@@ -424,9 +419,9 @@ export default function GastosPage() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setEditandoPresupuesto(false)}
                 className="px-3 py-2.5 text-sm cursor-pointer transition-colors"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
+                style={{ color: 'var(--color-ink-2)' }}
               >
-                ✕
+                âœ•
               </motion.button>
             </motion.div>
           )}
@@ -441,7 +436,7 @@ export default function GastosPage() {
             className="rounded-2xl p-4 mb-5"
             style={cardStyle}
           >
-            <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.25)' }}>Top categorías</p>
+            <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: 'var(--color-ink-3)' }}>Top categorías</p>
             <div className="grid grid-cols-2 gap-2">
               {topCategorias.map(c => {
                 const IconComp = c.Icon
@@ -449,14 +444,14 @@ export default function GastosPage() {
                   <div
                     key={c.valor}
                     className="flex items-center gap-2 rounded-xl px-3 py-2"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    style={{ background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)' }}
                   >
                     <div className="rounded-lg p-1.5 flex-shrink-0" style={{ background: `${c.color}18` }}>
                       <IconComp className="w-3.5 h-3.5" style={{ color: c.color }} />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-medium truncate text-white">{c.label}</p>
-                      <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>{formatMonto(c.total)}</p>
+                      <p className="text-xs" style={{ color: 'var(--color-ink-2)' }}>{formatMonto(c.total)}</p>
                     </div>
                   </div>
                 )
@@ -487,7 +482,7 @@ export default function GastosPage() {
             />
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Monto</label>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Monto</label>
                 <input
                   type="number"
                   placeholder="0"
@@ -501,7 +496,7 @@ export default function GastosPage() {
                 />
               </div>
               <div>
-                <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Fecha</label>
+                <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Fecha</label>
                 <input
                   type="date"
                   value={fecha}
@@ -514,7 +509,7 @@ export default function GastosPage() {
             </div>
 
             <div>
-              <label className="text-xs mb-1.5 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Categoría</label>
+              <label className="text-xs mb-1.5 block" style={{ color: 'var(--color-ink-2)' }}>Categoría</label>
               <div className="grid grid-cols-4 gap-1.5">
                 {CATEGORIAS.map(c => {
                   const IconComp = c.Icon
@@ -529,7 +524,7 @@ export default function GastosPage() {
                       style={
                         isActive
                           ? { background: `${c.color}26`, border: `1px solid ${c.color}60`, color: c.color }
-                          : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }
+                          : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                       }
                     >
                       <IconComp className="w-4 h-4" />
@@ -545,7 +540,7 @@ export default function GastosPage() {
               disabled={loading}
               whileTap={{ scale: 0.97 }}
               className="flex items-center justify-center gap-2 disabled:opacity-50 text-white rounded-xl py-2.5 font-semibold text-sm cursor-pointer"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 12px rgba(99,102,241,0.2)' }}
+              style={{ background: 'var(--color-primary)', boxShadow: 'none' }}
             >
               {loading
                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -566,7 +561,7 @@ export default function GastosPage() {
                 style={
                   filtroCategoria === 'todos'
                     ? { background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }
-                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }
+                    : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                 }
               >
                 Todos
@@ -583,7 +578,7 @@ export default function GastosPage() {
                     style={
                       isActive
                         ? { background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b' }
-                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }
+                        : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                     }
                   >
                     <IconComp className="w-3 h-3" />
@@ -593,7 +588,7 @@ export default function GastosPage() {
               })}
             </div>
 
-            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-ink-3)' }}>
               Historial ({gastosFiltrados.length})
             </p>
 
@@ -616,9 +611,9 @@ export default function GastosPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-medium truncate">{gasto.descripcion}</p>
-                      <span className="flex items-center gap-1.5 text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                      <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--color-ink-3)' }}>
                         <span>{cat.label} · {formatFecha(gasto.fecha)}</span>
-                        <span style={{ color: 'rgba(255,255,255,0.12)' }}>·</span>
+                        <span style={{ color: 'var(--color-ink-3)' }}>·</span>
                         <User className="w-2.5 h-2.5" />
                         <span>{nombreMiembro(gasto.usuario_id)}</span>
                       </span>
@@ -628,7 +623,7 @@ export default function GastosPage() {
                       whileTap={{ scale: 0.85 }}
                       onClick={() => setConfirmId(gasto.id)}
                       className="cursor-pointer p-1 transition-colors"
-                      style={{ color: 'rgba(255,255,255,0.2)' }}
+                      style={{ color: 'var(--color-ink-3)' }}
                     >
                       <Trash2 className="w-4 h-4 hover:text-red-400" />
                     </motion.button>
@@ -643,8 +638,8 @@ export default function GastosPage() {
 
         {iniciado && gastosMes.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center mt-12">
-            <Wallet className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.12)' }} />
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Sin gastos en {MESES[mesActual]}</p>
+            <Wallet className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+            <p className="text-sm" style={{ color: 'var(--color-ink-2)' }}>Sin gastos en {MESES[mesActual]}</p>
           </motion.div>
         )}
 
@@ -652,3 +647,9 @@ export default function GastosPage() {
     </div>
   )
 }
+
+
+
+
+
+

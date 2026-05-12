@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { SkeletonList } from '@/components/Skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import PageHeader from '@/components/PageHeader'
 
 // ─── Types & constants ────────────────────────────────────────────────────────
 
@@ -68,20 +69,21 @@ function todayKey() {
 // ─── Design helpers ───────────────────────────────────────────────────────────
 
 const card = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.07)',
-  borderRadius: 16,
+  background: 'var(--color-paper)',
+  border: '1.5px solid var(--color-ink)',
+  borderRadius: 2,
 }
 
 const input = {
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.09)',
-  borderRadius: 12,
+  background: 'transparent',
+  border: 0,
+  borderBottom: '1.5px solid var(--color-ink)',
+  borderRadius: 0,
 }
 
 const primaryBtn = {
-  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-  boxShadow: '0 4px 12px rgba(99,102,241,0.2)',
+  background: 'var(--color-primary)',
+  boxShadow: 'none',
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
@@ -293,7 +295,7 @@ export default function TareasPage() {
   ]
 
   return (
-    <div className="p-5 pb-8" style={{ minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <ConfirmDialog
         open={!!confirmId}
         title="¿Eliminar tarea?"
@@ -302,70 +304,39 @@ export default function TareasPage() {
         onCancel={() => setConfirmId(null)}
       />
 
-      <div className="max-w-lg mx-auto">
+      <PageHeader
+        sectionNum="02"
+        sectionLabel="Tareas"
+        right={`${urgentes.length + normales.length} PENDIENTES`}
+        title="Lo que hay que hacer."
+        sub="ordenadas por urgencia"
+      />
 
-        {/* ── Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-6 pt-2"
-        >
-          <Link href="/dashboard">
-            <motion.div
-              whileTap={{ scale: 0.9 }}
-              className="p-1 cursor-pointer transition-colors"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </motion.div>
-          </Link>
-          <div className="flex items-center gap-2">
-            <CheckSquare className="w-5 h-5" style={{ color: '#3b82f6' }} />
-            <h1 className="text-xl font-bold text-white">Tareas</h1>
-          </div>
-          <div className="ml-auto">
-            {activeTab === 'hogar' && urgentes.length > 0 && (
-              <span
-                className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1"
-                style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}
-              >
-                <AlertCircle className="w-3 h-3" />
-                {urgentes.length} urgente{urgentes.length > 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-        </motion.div>
+      <div className="page-content">
 
         {/* ── Tab pills ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="flex gap-2 mb-6"
-        >
+        <div style={{ display: 'flex', gap: 0, borderBottom: '1.5px solid var(--color-ink)', marginTop: 14, marginBottom: 14 }}>
           {TABS.map(tab => (
-            <motion.button
+            <button
               key={tab.key}
-              whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.key)}
-              className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-xl transition-all cursor-pointer"
-              style={
-                activeTab === tab.key
-                  ? {
-                      background: 'rgba(59,130,246,0.15)',
-                      border: '1px solid rgba(59,130,246,0.3)',
-                      color: '#3b82f6',
-                    }
-                  : {
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                      color: 'rgba(255,255,255,0.35)',
-                    }
-              }
+              style={{
+                flex: 1,
+                padding: '8px 4px',
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 10, letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                background: 'transparent', border: 0,
+                cursor: 'pointer',
+                color: activeTab === tab.key ? 'var(--color-ink)' : 'var(--color-ink-3)',
+                borderBottom: activeTab === tab.key ? '2px solid var(--color-ink)' : '2px solid transparent',
+                marginBottom: -1.5,
+              }}
             >
-              <tab.Icon className="w-3 h-3" />
               {tab.label}
-            </motion.button>
+            </button>
           ))}
-        </motion.div>
+        </div>
 
         {/* ── Tab content ── */}
         <AnimatePresence mode="wait">
@@ -392,8 +363,8 @@ export default function TareasPage() {
                     value={titulo}
                     onChange={e => setTitulo(e.target.value)}
                     required
-                    style={{ ...input, color: '#fff', fontSize: 14, padding: '10px 16px' }}
-                    className="flex-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 placeholder-[rgba(255,255,255,0.25)] transition-all"
+                    style={{ ...input, color: 'var(--color-ink)', fontSize: 14, padding: '10px 16px' }}
+                    className="flex-1 text-sm focus:outline-none placeholder-[var(--color-ink-3)] transition-all"
                   />
                   <motion.button
                     type="submit"
@@ -425,7 +396,7 @@ export default function TareasPage() {
                             ? isUrgente
                               ? { background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }
                               : { background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#3b82f6' }
-                            : { background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.25)' }
+                            : { background: 'transparent', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-3)' }
                         }
                       >
                         <Flag className="w-3 h-3" /> {p.label}
@@ -437,7 +408,7 @@ export default function TareasPage() {
                 <div className="flex items-center gap-3">
                   <label
                     className="flex items-center gap-2 text-sm cursor-pointer select-none flex-1"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                    style={{ color: 'var(--color-ink-2)' }}
                   >
                     <input
                       type="checkbox"
@@ -448,13 +419,13 @@ export default function TareasPage() {
                     <Users className="w-3.5 h-3.5" /> Compartida
                   </label>
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.25)' }} />
+                    <Calendar className="w-3.5 h-3.5" style={{ color: 'var(--color-ink-3)' }} />
                     <input
                       type="date"
                       value={fechaLimite}
                       onChange={e => setFechaLimite(e.target.value)}
-                      style={{ ...input, color: 'rgba(255,255,255,0.7)', fontSize: 12, padding: '6px 10px' }}
-                      className="focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all"
+                      style={{ ...input, color: 'var(--color-ink-2)', fontSize: 12, padding: '6px 10px' }}
+                      className="focus:outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -489,7 +460,7 @@ export default function TareasPage() {
                   {urgentes.length > 0 && (
                     <p
                       className="text-xs font-medium uppercase tracking-wider mb-2 px-1"
-                      style={{ color: 'rgba(255,255,255,0.25)' }}
+                      style={{ color: 'var(--color-ink-3)' }}
                     >
                       Otras
                     </p>
@@ -511,7 +482,7 @@ export default function TareasPage() {
                 <div>
                   <p
                     className="text-xs font-medium uppercase tracking-wider mb-2 px-1"
-                    style={{ color: 'rgba(255,255,255,0.25)' }}
+                    style={{ color: 'var(--color-ink-3)' }}
                   >
                     Completadas ({completadas.length})
                   </p>
@@ -535,7 +506,7 @@ export default function TareasPage() {
                         </motion.button>
                         <p
                           className="flex-1 text-sm line-through truncate"
-                          style={{ color: 'rgba(255,255,255,0.5)' }}
+                          style={{ color: 'var(--color-ink-2)' }}
                         >
                           {t.titulo}
                         </p>
@@ -543,7 +514,7 @@ export default function TareasPage() {
                           whileTap={{ scale: 0.85 }}
                           onClick={() => setConfirmId(t.id)}
                           className="transition-colors cursor-pointer p-1 hover:text-red-400"
-                          style={{ color: 'rgba(255,255,255,0.2)' }}
+                          style={{ color: 'var(--color-ink-3)' }}
                         >
                           <Trash2 className="w-4 h-4" />
                         </motion.button>
@@ -560,8 +531,8 @@ export default function TareasPage() {
                   transition={{ delay: 0.3 }}
                   className="text-center mt-16"
                 >
-                  <CheckSquare className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.25)' }}>No hay tareas todavía</p>
+                  <CheckSquare className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+                  <p className="text-sm" style={{ color: 'var(--color-ink-3)' }}>No hay tareas todavía</p>
                 </motion.div>
               )}
             </motion.div>
@@ -585,7 +556,7 @@ export default function TareasPage() {
                   </div>
                   <div
                     className="w-full rounded-full overflow-hidden"
-                    style={{ height: 6, background: 'rgba(255,255,255,0.07)' }}
+                    style={{ height: 6, background: 'var(--color-paper)' }}
                   >
                     <motion.div
                       className="h-full rounded-full"
@@ -609,8 +580,8 @@ export default function TareasPage() {
                   placeholder="Nuevo hábito..."
                   value={nuevoHabito}
                   onChange={e => setNuevoHabito(e.target.value)}
-                  style={{ ...input, color: '#fff', fontSize: 14, padding: '10px 16px' }}
-                  className="flex-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 placeholder-[rgba(255,255,255,0.25)] transition-all"
+                  style={{ ...input, color: 'var(--color-ink)', fontSize: 14, padding: '10px 16px' }}
+                  className="flex-1 text-sm focus:outline-none placeholder-[var(--color-ink-3)] transition-all"
                 />
                 <motion.button
                   type="submit"
@@ -643,7 +614,7 @@ export default function TareasPage() {
                         style={
                           done
                             ? { background: '#3b82f6', border: '1.5px solid #3b82f6' }
-                            : { background: 'transparent', border: '1.5px solid rgba(255,255,255,0.15)' }
+                            : { background: 'transparent', border: '1.5px solid var(--color-ink)' }
                         }
                       >
                         {done && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
@@ -651,7 +622,7 @@ export default function TareasPage() {
                       <p
                         className="flex-1 text-sm transition-all"
                         style={{
-                          color: done ? 'rgba(255,255,255,0.4)' : '#fff',
+                          color: done ? 'var(--color-ink-3)' : 'var(--color-ink)',
                           textDecoration: done ? 'line-through' : 'none',
                         }}
                       >
@@ -661,7 +632,7 @@ export default function TareasPage() {
                         whileTap={{ scale: 0.85 }}
                         onClick={() => eliminarHabito(h.id)}
                         className="p-1 cursor-pointer transition-colors hover:text-red-400"
-                        style={{ color: 'rgba(255,255,255,0.2)' }}
+                        style={{ color: 'var(--color-ink-3)' }}
                       >
                         <Trash2 className="w-4 h-4" />
                       </motion.button>
@@ -676,9 +647,9 @@ export default function TareasPage() {
                   transition={{ delay: 0.2 }}
                   className="text-center mt-12"
                 >
-                  <CheckSquare className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.25)' }}>Sin hábitos todavía</p>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.15)' }}>
+                  <CheckSquare className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+                  <p className="text-sm" style={{ color: 'var(--color-ink-3)' }}>Sin hábitos todavía</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--color-ink-3)' }}>
                     Agregá tu primer hábito arriba
                   </p>
                 </motion.div>
@@ -696,7 +667,7 @@ export default function TareasPage() {
               {/* Date header */}
               <p
                 className="text-xs font-medium uppercase tracking-wider mb-5 text-center"
-                style={{ color: 'rgba(255,255,255,0.25)' }}
+                style={{ color: 'var(--color-ink-3)' }}
               >
                 {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
@@ -708,7 +679,7 @@ export default function TareasPage() {
                     <circle
                       cx="80" cy="80" r="68"
                       fill="none"
-                      stroke="rgba(255,255,255,0.07)"
+                      stroke="var(--color-rule-soft)"
                       strokeWidth="10"
                     />
                     <circle
@@ -725,7 +696,7 @@ export default function TareasPage() {
                   </svg>
                   <div className="absolute flex flex-col items-center">
                     <span className="text-5xl font-bold text-white">{vasos}</span>
-                    <span className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>vasos</span>
+                    <span className="text-xs mt-0.5" style={{ color: 'var(--color-ink-2)' }}>vasos</span>
                   </div>
                 </div>
 
@@ -743,7 +714,7 @@ export default function TareasPage() {
                         style={{
                           color: i < vasos
                             ? aguaGoalReached ? '#22c55e' : '#38bdf8'
-                            : 'rgba(255,255,255,0.12)',
+                            : 'var(--color-rule-soft)',
                           filter: i < vasos ? 'drop-shadow(0 0 4px rgba(56,189,248,0.4))' : 'none',
                           transition: 'color 0.2s, filter 0.2s',
                         }}
@@ -755,7 +726,7 @@ export default function TareasPage() {
                 <p className="text-sm font-medium mb-1" style={{ color: aguaGoalReached ? '#22c55e' : '#38bdf8' }}>
                   {vasos} de 8 vasos
                 </p>
-                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                <p className="text-xs" style={{ color: 'var(--color-ink-3)' }}>
                   0 calorías · esencial para el cuerpo
                 </p>
               </div>
@@ -768,9 +739,9 @@ export default function TareasPage() {
                   disabled={vasos <= 0}
                   className="flex-1 py-3 rounded-xl font-medium text-sm transition-all cursor-pointer disabled:opacity-30"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.09)',
-                    color: '#fff',
+                    background: 'var(--color-paper)',
+                    border: '1px solid var(--color-rule-soft)',
+                    color: 'var(--color-ink)',
                   }}
                 >
                   - Vaso
@@ -819,7 +790,7 @@ export default function TareasPage() {
               {/* Date header */}
               <p
                 className="text-xs font-medium uppercase tracking-wider mb-5 text-center"
-                style={{ color: 'rgba(255,255,255,0.25)' }}
+                style={{ color: 'var(--color-ink-3)' }}
               >
                 {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </p>
@@ -828,20 +799,20 @@ export default function TareasPage() {
               <div style={card} className="p-6 mb-4 text-center">
                 <Footprints
                   className="w-8 h-8 mx-auto mb-3"
-                  style={{ color: pasosGoalReached ? '#4ade80' : 'rgba(255,255,255,0.3)' }}
+                  style={{ color: pasosGoalReached ? '#4ade80' : 'var(--color-ink-3)' }}
                 />
                 <p
                   className="text-6xl font-bold mb-1 transition-colors"
-                  style={{ color: pasosGoalReached ? '#4ade80' : '#fff' }}
+                  style={{ color: pasosGoalReached ? '#4ade80' : 'var(--color-ink)' }}
                 >
                   {pasos.toLocaleString('es-AR')}
                 </p>
-                <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.35)' }}>pasos hoy</p>
+                <p className="text-xs mb-4" style={{ color: 'var(--color-ink-3)' }}>pasos hoy</p>
 
                 {/* Progress bar */}
                 <div
                   className="w-full rounded-full overflow-hidden mb-2"
-                  style={{ height: 8, background: 'rgba(255,255,255,0.07)' }}
+                  style={{ height: 8, background: 'var(--color-paper)' }}
                 >
                   <motion.div
                     className="h-full rounded-full"
@@ -851,7 +822,7 @@ export default function TareasPage() {
                     transition={{ duration: 0.4, ease: 'easeOut' }}
                   />
                 </div>
-                <div className="flex items-center justify-between text-xs mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                <div className="flex items-center justify-between text-xs mt-1" style={{ color: 'var(--color-ink-3)' }}>
                   <span>{pasos.toLocaleString('es-AR')} pasos</span>
                   <AnimatePresence mode="wait">
                     {editandoPasosGoal ? (
@@ -869,7 +840,7 @@ export default function TareasPage() {
                           autoFocus
                           min={1000}
                           onKeyDown={e => e.key === 'Enter' && guardarPasosGoal()}
-                          style={{ width: 72, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 6, color: '#fff', padding: '1px 6px', fontSize: 11, outline: 'none' }}
+                          style={{ width: 72, background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', borderRadius: 6, color: 'var(--color-ink)', padding: '1px 6px', fontSize: 11, outline: 'none' }}
                         />
                         <motion.button
                           whileTap={{ scale: 0.9 }}
@@ -881,7 +852,7 @@ export default function TareasPage() {
                         <motion.button
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setEditandoPasosGoal(false)}
-                          style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, cursor: 'pointer' }}
+                          style={{ color: 'var(--color-ink-2)', fontSize: 10, cursor: 'pointer' }}
                         >
                           ✕
                         </motion.button>
@@ -895,7 +866,7 @@ export default function TareasPage() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => { setEditandoPasosGoal(true); setNuevoPasosGoal(String(pasosGoal)) }}
                         className="flex items-center gap-1 cursor-pointer transition-colors"
-                        style={{ color: 'rgba(255,255,255,0.4)' }}
+                        style={{ color: 'var(--color-ink-2)' }}
                       >
                         <Pencil className="w-2.5 h-2.5" />
                         Meta: {pasosGoal.toLocaleString('es-AR')}
@@ -904,7 +875,7 @@ export default function TareasPage() {
                   </AnimatePresence>
                 </div>
 
-                <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--color-rule-soft)' }}>
                   <p className="text-sm" style={{ color: '#4ade80' }}>
                     {Math.round(pasos * 0.04)} kcal quemadas
                   </p>
@@ -913,7 +884,7 @@ export default function TareasPage() {
 
               {/* Manual input */}
               <div style={card} className="p-4 mb-4">
-                <label className="block text-xs mb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                <label className="block text-xs mb-2" style={{ color: 'var(--color-ink-2)' }}>
                   Ingresar pasos manualmente
                 </label>
                 <input
@@ -922,8 +893,8 @@ export default function TareasPage() {
                   value={pasos || ''}
                   onChange={e => updatePasos(Number(e.target.value) || 0)}
                   placeholder="0"
-                  style={{ ...input, color: '#fff', fontSize: 18, fontWeight: 700, padding: '12px 16px', width: '100%' }}
-                  className="focus:outline-none focus:ring-2 focus:ring-indigo-500/40 placeholder-[rgba(255,255,255,0.15)] transition-all text-center"
+                  style={{ ...input, color: 'var(--color-ink)', fontSize: 18, fontWeight: 700, padding: '12px 16px', width: '100%' }}
+                  className="focus:outline-none placeholder-[var(--color-ink-3)] transition-all text-center"
                 />
               </div>
 
@@ -991,10 +962,10 @@ function TareaItem({
       exit={{ opacity: 0, x: 16, height: 0 }}
       transition={{ type: 'spring', stiffness: 350, damping: 30 }}
       style={{
-        background: 'rgba(255,255,255,0.03)',
+        background: 'var(--color-paper)',
         border: tarea.prioridad === 'urgente'
           ? '1px solid rgba(239,68,68,0.2)'
-          : '1px solid rgba(255,255,255,0.07)',
+          : '1px solid var(--color-rule-soft)',
         borderRadius: 14,
       }}
       className="p-4 mb-2 flex items-center gap-3"
@@ -1003,18 +974,18 @@ function TareaItem({
         whileTap={{ scale: 0.85 }}
         onClick={() => onToggle(tarea)}
         className="w-5 h-5 rounded-full flex-shrink-0 transition-all cursor-pointer"
-        style={{ border: '1.5px solid rgba(255,255,255,0.15)', background: 'transparent' }}
+        style={{ border: '1.5px solid var(--color-ink)', background: 'transparent' }}
         onMouseEnter={e => {
           (e.currentTarget as HTMLButtonElement).style.borderColor = '#3b82f6'
         }}
         onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)'
+          (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-rule-soft)'
         }}
       />
       <div className="flex-1 min-w-0">
         <p className="text-white text-sm font-medium truncate">{tarea.titulo}</p>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          <span className="flex items-center gap-1 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-ink-2)' }}>
             {tarea.es_compartida
               ? <Users className="w-2.5 h-2.5" style={{ color: 'rgba(99,102,241,0.7)' }} />
               : <User className="w-2.5 h-2.5" />}
@@ -1026,7 +997,7 @@ function TareaItem({
               style={
                 tarea.prioridad === 'urgente'
                   ? { background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }
-                  : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.3)' }
+                  : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
               }
             >
               {prioridad.label}
@@ -1038,7 +1009,7 @@ function TareaItem({
               style={
                 limite.urgent
                   ? { background: 'rgba(239,68,68,0.15)', color: '#f87171' }
-                  : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)' }
+                  : { background: 'var(--color-paper)', color: 'var(--color-ink-2)' }
               }
             >
               {limite.label}
@@ -1050,10 +1021,14 @@ function TareaItem({
         whileTap={{ scale: 0.85 }}
         onClick={() => onEliminar(tarea.id)}
         className="transition-colors cursor-pointer p-1 hover:text-red-400"
-        style={{ color: 'rgba(255,255,255,0.2)' }}
+        style={{ color: 'var(--color-ink-3)' }}
       >
         <Trash2 className="w-4 h-4" />
       </motion.button>
     </motion.div>
   )
 }
+
+
+
+

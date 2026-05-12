@@ -2,71 +2,65 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { LayoutDashboard, CheckSquare, ShoppingCart, Wallet, Utensils, Bell } from 'lucide-react'
 
 const tabs = [
-  { href: '/dashboard',               icon: LayoutDashboard, label: 'Inicio',   accent: '#6366f1' },
-  { href: '/dashboard/tareas',        icon: CheckSquare,     label: 'Tareas',   accent: '#3b82f6' },
-  { href: '/dashboard/compras',       icon: ShoppingCart,    label: 'Compras',  accent: '#10b981' },
-  { href: '/dashboard/gastos',        icon: Wallet,          label: 'Dinero',   accent: '#f59e0b' },
-  { href: '/dashboard/comidas',       icon: Utensils,        label: 'Comidas',  accent: '#f97316' },
-  { href: '/dashboard/recordatorios', icon: Bell,            label: 'Agenda',   accent: '#a855f7' },
+  { href: '/dashboard',               num: '01', label: 'Inicio'   },
+  { href: '/dashboard/tareas',        num: '02', label: 'Tareas'   },
+  { href: '/dashboard/compras',       num: '03', label: 'Compras'  },
+  { href: '/dashboard/gastos',        num: '04', label: 'Dinero'   },
+  { href: '/dashboard/comidas',       num: '05', label: 'Comidas'  },
+  { href: '/dashboard/recordatorios', num: '06', label: 'Agenda'   },
+  { href: '/dashboard/diario',        num: '07', label: 'Diario'   },
+  { href: '/dashboard/habitos',       num: '08', label: 'Hábitos'  },
 ]
 
 export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 px-3"
-      style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom))' }}
+    <nav
+      style={{
+        position: 'fixed',
+        bottom: 0, left: 0, right: 0,
+        background: 'var(--color-bg)',
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(45,36,24,0.04) 31px, rgba(45,36,24,0.04) 32px)',
+        borderTop: '1.5px solid var(--color-ink)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        zIndex: 50,
+        paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+      }}
     >
-      <nav
-        className="max-w-lg mx-auto flex items-center px-1.5 py-1.5 rounded-2xl gap-0.5"
-        style={{
-          background: 'rgba(12,12,14,0.97)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          boxShadow: '0 -2px 32px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)',
-        }}
-      >
-        {tabs.map((tab) => {
-          const active = pathname === tab.href
-          const Icon = tab.icon
-
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={active ? 'flex-shrink-0' : 'flex-1 flex items-center justify-center'}
-            >
-              <motion.div whileTap={{ scale: 0.82 }}>
-                {active ? (
-                  <motion.div
-                    layoutId="nav-pill"
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl"
-                    style={{
-                      background: `${tab.accent}1c`,
-                      border: `1px solid ${tab.accent}38`,
-                      boxShadow: `0 0 20px ${tab.accent}18`,
-                    }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 36 }}
-                  >
-                    <Icon style={{ width: 15, height: 15, color: tab.accent, strokeWidth: 2.5 }} />
-                    <span className="text-xs font-semibold" style={{ color: '#fff', lineHeight: 1 }}>
-                      {tab.label}
-                    </span>
-                  </motion.div>
-                ) : (
-                  <div className="flex items-center justify-center" style={{ width: 38, height: 36 }}>
-                    <Icon style={{ width: 18, height: 18, color: 'rgba(255,255,255,0.28)', strokeWidth: 1.75 }} />
-                  </div>
-                )}
-              </motion.div>
-            </Link>
-          )
-        })}
-      </nav>
-    </div>
+      {tabs.map((tab) => {
+        const active = pathname === tab.href
+        return (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              padding: '9px 4px 8px',
+              fontFamily: 'var(--font-plex-mono)',
+              fontSize: 10,
+              fontWeight: 500,
+              letterSpacing: '0.02em',
+              background: active ? 'var(--color-ink)' : 'transparent',
+              color: active ? 'var(--color-bg)' : 'var(--color-ink-2)',
+              textDecoration: 'none',
+              transition: 'background 0.15s, color 0.15s',
+            }}
+          >
+            <span>{tab.num}</span>
+            <span style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {tab.label}
+            </span>
+          </Link>
+        )
+      })}
+    </nav>
   )
 }

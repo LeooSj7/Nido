@@ -1,17 +1,45 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { toast } from 'sonner'
-import { CheckSquare, ShoppingCart, Wallet, Bell, Utensils, Copy, Users, UserCircle, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { SkeletonDashboard } from '@/components/Skeleton'
-import { BarChart, Bar, ResponsiveContainer, Tooltip, Cell } from 'recharts'
+import Link from 'next/link'
 
-type Actividad = { id: string; usuario_nombre: string; tipo: string; descripcion: string; creado_at: string }
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type Actividad = {
+  id: string
+  usuario_nombre: string
+  tipo: string
+  descripcion: string
+  creado_at: string
+}
+
 type GastoSemana = { semana: string; total: number }
+
+// ─── Currency ─────────────────────────────────────────────────────────────────
+
+const CURRENCIES = [
+  { code: 'ARS', sym: '$',   name: 'Peso ARG', rate: 1,          noDec: true  },
+  { code: 'USD', sym: 'U$',  name: 'Dólar',    rate: 0.000847               },
+  { code: 'EUR', sym: '€',   name: 'Euro',     rate: 0.000780               },
+  { code: 'BOB', sym: 'Bs',  name: 'Boliviano',rate: 0.00590                },
+  { code: 'MXN', sym: 'MX$', name: 'Peso MX',  rate: 0.01458                },
+  { code: 'BRL', sym: 'R$',  name: 'Real',     rate: 0.00462                },
+  { code: 'CLP', sym: 'CL$', name: 'Peso CL',  rate: 0.8008,  noDec: true  },
+  { code: 'PEN', sym: 'S/',  name: 'Sol',      rate: 0.00318                },
+  { code: 'GBP', sym: '£',   name: 'Libra',    rate: 0.00066                },
+  { code: 'COP', sym: 'CO$', name: 'Peso COL', rate: 3.542,   noDec: true  },
+]
+
+function fmtMoney(ars: number, cur: typeof CURRENCIES[0]) {
+  const v = ars * cur.rate
+  if (cur.noDec) return `${cur.sym}${Math.round(v).toLocaleString('es-AR')}`
+  return `${cur.sym}${v.toFixed(2)}`
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function saludo() {
   const h = new Date().getHours()
@@ -20,350 +48,497 @@ function saludo() {
   return 'Buenas noches'
 }
 
+function formatDateStrip() {
+  const days   = ['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB']
+  const months = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC']
+  const d = new Date()
+  return `${days[d.getDay()]} · ${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`
+}
+
 function tiempoAtras(fecha: string) {
   const diff = Date.now() - new Date(fecha).getTime()
   const min = Math.floor(diff / 60000)
   if (min < 1) return 'ahora'
-  if (min < 60) return `hace ${min}m`
+  if (min < 60) return `${min}m`
   const h = Math.floor(min / 60)
-  if (h < 24) return `hace ${h}h`
-  return `hace ${Math.floor(h / 24)}d`
+  if (h < 24) return `${h}h`
+  return `${Math.floor(h / 24)}d`
 }
 
-function iconoActividad(tipo: string) {
-  if (tipo.includes('tarea')) return <CheckSquare className="w-3.5 h-3.5 text-blue-400" />
-  if (tipo.includes('compra')) return <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-  if (tipo.includes('gasto')) return <Wallet className="w-3.5 h-3.5 text-amber-400" />
-  return <Bell className="w-3.5 h-3.5 text-purple-400" />
+function mesActual() {
+  return new Date().toLocaleString('es-AR', { month: 'long' }).toUpperCase()
 }
 
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
-const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }
+// ─── Logo ─────────────────────────────────────────────────────────────────────
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.07)',
+function NidoLogo({ size = 22 }: { size?: number }) {
+  return (
+    <span style={{
+      fontFamily: 'var(--font-plex-serif)',
+      fontWeight: 500,
+      fontSize: size,
+      color: 'var(--color-ink)',
+      letterSpacing: '-0.01em',
+      display: 'inline-flex',
+      alignItems: 'flex-end',
+      gap: size * 0.18,
+    }}>
+      <span style={{
+        display: 'inline-block',
+        position: 'relative',
+        width: size * 1.05,
+        height: size * 0.7,
+        marginBottom: size * 0.06,
+      }}>
+        <span style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: size * 0.5,
+          borderTopLeftRadius: '100% 100%', borderTopRightRadius: '100% 100%',
+          border: '1.6px solid var(--color-ink)', borderBottom: 0,
+        }} />
+        <span style={{
+          position: 'absolute',
+          bottom: size * 0.06,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: size * 0.32,
+          height: size * 0.32,
+          borderRadius: '50%',
+          background: 'var(--color-primary)',
+        }} />
+      </span>
+      <span style={{ lineHeight: 1 }}>
+        Nido<span style={{ color: 'var(--color-primary)' }}>.</span>
+      </span>
+    </span>
+  )
 }
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [cargado, setCargado] = useState(false)
-  const [nombre, setNombre] = useState('')
+  const [cargado, setCargado]     = useState(false)
+  const [nombre, setNombre]       = useState('')
   const [casaNombre, setCasaNombre] = useState('')
   const [casaCodigo, setCasaCodigo] = useState('')
   const [actividad, setActividad] = useState<Actividad[]>([])
-  const [gastosSemanas, setGastosSemanas] = useState<GastoSemana[]>([])
-  const [resumen, setResumen] = useState({ tareasPendientes: 0, proximoRecordatorio: null as string | null, gastosMes: 0, comprasPendientes: 0, presupuesto: 0, tareasUrgentes: 0 })
+  const [resumen, setResumen]     = useState({
+    tareasPendientes: 0,
+    proximoRecordatorio: null as string | null,
+    gastosMes: 0,
+    comprasPendientes: 0,
+    presupuesto: 0,
+    tareasUrgentes: 0,
+  })
+
+  // currency picker
+  const [curCode, setCurCode] = useState('ARS')
+  const [curOpen, setCurOpen] = useState(false)
+  const cur = CURRENCIES.find(c => c.code === curCode) ?? CURRENCIES[0]
+  const m   = (ars: number) => fmtMoney(ars, cur)
+
+  // family photo
+  const [familyPhoto, setFamilyPhoto] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFamilyPhoto(URL.createObjectURL(file))
+    toast.success('Foto actualizada')
+  }
 
   useEffect(() => {
     async function cargar() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      const { data: usuario } = await supabase.from('usuarios').select('nombre, casa_id').eq('id', user.id).single()
+      const { data: usuario } = await supabase
+        .from('usuarios').select('nombre, casa_id').eq('id', user.id).single()
       if (!usuario) { router.push('/login'); return }
       if (!usuario.casa_id) { router.push('/setup-casa'); return }
 
       setNombre(usuario.nombre)
       const cid = usuario.casa_id
-
       const ahora = new Date().toISOString()
-      const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+      const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+        .toISOString().split('T')[0]
 
-      const semanas: GastoSemana[] = []
-      for (let i = 3; i >= 0; i--) {
-        const inicio = new Date(); inicio.setDate(inicio.getDate() - (i + 1) * 7)
-        const fin = new Date(); fin.setDate(fin.getDate() - i * 7)
-        semanas.push({ semana: `S${4 - i}`, total: 0, _inicio: inicio.toISOString().split('T')[0], _fin: fin.toISOString().split('T')[0] } as GastoSemana & { _inicio: string; _fin: string })
-      }
-
-      const [casa, tareas, tareasUrgentes, recordatorios, gastos, compras, actividadData] = await Promise.all([
-        supabase.from('casas').select('nombre, codigo, presupuesto_mensual').eq('id', cid).single(),
-        supabase.from('tareas').select('id', { count: 'exact' }).eq('casa_id', cid).eq('completada', false),
-        supabase.from('tareas').select('id', { count: 'exact' }).eq('casa_id', cid).eq('completada', false).eq('prioridad', 'urgente'),
-        supabase.from('recordatorios').select('titulo, fecha').eq('casa_id', cid).gte('fecha', ahora).order('fecha').limit(1),
-        supabase.from('gastos').select('monto, fecha').eq('casa_id', cid).gte('fecha', inicioMes),
-        supabase.from('compras').select('id', { count: 'exact' }).eq('casa_id', cid).eq('comprado', false),
-        supabase.from('actividad').select('*').eq('casa_id', cid).order('creado_at', { ascending: false }).limit(8),
-      ])
+      const [casa, tareas, tareasUrg, recordatorios, gastos, compras, actividadData] =
+        await Promise.all([
+          supabase.from('casas').select('nombre, codigo, presupuesto_mensual').eq('id', cid).single(),
+          supabase.from('tareas').select('id', { count: 'exact' }).eq('casa_id', cid).eq('completada', false),
+          supabase.from('tareas').select('id', { count: 'exact' }).eq('casa_id', cid).eq('completada', false).eq('prioridad', 'urgente'),
+          supabase.from('recordatorios').select('titulo, fecha').eq('casa_id', cid).gte('fecha', ahora).order('fecha').limit(1),
+          supabase.from('gastos').select('monto').eq('casa_id', cid).gte('fecha', inicioMes),
+          supabase.from('compras').select('id', { count: 'exact' }).eq('casa_id', cid).eq('comprado', false),
+          supabase.from('actividad').select('*').eq('casa_id', cid).order('creado_at', { ascending: false }).limit(4),
+        ])
 
       if (casa.data) { setCasaNombre(casa.data.nombre); setCasaCodigo(casa.data.codigo) }
       if (actividadData.data) setActividad(actividadData.data)
 
-      const gastosMesTotal = (gastos.data ?? []).reduce((acc, g) => acc + Number(g.monto), 0)
-
-      const gastosData = gastos.data ?? []
-      const semanasCalculadas = (semanas as (GastoSemana & { _inicio: string; _fin: string })[]).map(s => ({
-        semana: s.semana,
-        total: gastosData
-          .filter(g => g.fecha >= s._inicio && g.fecha < s._fin)
-          .reduce((acc, g) => acc + Number(g.monto), 0)
-      }))
-      setGastosSemanas(semanasCalculadas)
-
       setResumen({
-        tareasPendientes: tareas.count ?? 0,
+        tareasPendientes:    tareas.count ?? 0,
         proximoRecordatorio: recordatorios.data?.[0]?.titulo ?? null,
-        gastosMes: gastosMesTotal,
-        comprasPendientes: compras.count ?? 0,
-        presupuesto: Number(casa.data?.presupuesto_mensual) || 0,
-        tareasUrgentes: tareasUrgentes.count ?? 0,
+        gastosMes:           (gastos.data ?? []).reduce((a, g) => a + Number(g.monto), 0),
+        comprasPendientes:   compras.count ?? 0,
+        presupuesto:         Number(casa.data?.presupuesto_mensual) || 0,
+        tareasUrgentes:      tareasUrg.count ?? 0,
       })
       setCargado(true)
     }
     cargar()
   }, [router])
 
-  function copiarCodigo() {
-    navigator.clipboard.writeText(casaCodigo)
-    toast.success(`Código ${casaCodigo} copiado`)
-  }
-
-  const porcentajePresupuesto = resumen.presupuesto > 0 ? Math.min((resumen.gastosMes / resumen.presupuesto) * 100, 100) : 0
-  const maxGasto = Math.max(...gastosSemanas.map(s => s.total), 1)
-  const estadoCasa = resumen.tareasUrgentes > 0
-    ? { texto: `${resumen.tareasUrgentes} tarea${resumen.tareasUrgentes > 1 ? 's' : ''} urgente${resumen.tareasUrgentes > 1 ? 's' : ''}`, ok: false }
-    : resumen.tareasPendientes === 0
-      ? { texto: 'Todo al día', ok: true }
-      : { texto: `${resumen.tareasPendientes} pendiente${resumen.tareasPendientes > 1 ? 's' : ''}`, ok: true }
+  const pct = resumen.presupuesto > 0
+    ? Math.min(Math.round((resumen.gastosMes / resumen.presupuesto) * 100), 100)
+    : 0
 
   if (!cargado) {
     return (
-      <div className="p-5 max-w-lg mx-auto pt-6" style={{ background: '#09090b', minHeight: '100vh' }}>
-        <SkeletonDashboard />
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'var(--font-plex-mono)',
+        fontSize: 11,
+        color: 'var(--color-ink-3)',
+        letterSpacing: '0.08em',
+      }}>
+        CARGANDO…
       </div>
     )
   }
 
+  const secciones: [string, string, string, string, string, string][] = [
+    ['/dashboard/tareas',        '02', 'Tareas',  `${resumen.tareasPendientes} pendientes`,                         resumen.tareasUrgentes > 0 ? `${resumen.tareasUrgentes} urg.` : '',      'var(--color-sage)' ],
+    ['/dashboard/compras',       '03', 'Compras', `${resumen.comprasPendientes} por comprar`,                       `${resumen.comprasPendientes} it.`,                                        'var(--color-blush)'],
+    ['/dashboard/gastos',        '04', 'Dinero',  `${m(resumen.gastosMes)} / ${m(resumen.presupuesto)}`,           '6 mov.',                                                                  'var(--color-sand)' ],
+    ['/dashboard/comidas',       '05', 'Comidas', 'Registro diario',                                               'hoy',                                                                     'var(--color-cream)'],
+    ['/dashboard/recordatorios', '06', 'Agenda',  resumen.proximoRecordatorio ?? 'Sin próximos',                   resumen.proximoRecordatorio ? '1+' : '—',                                  'var(--color-sky)'  ],
+    ['/dashboard/diario',        '07', 'Diario',  'Lo que fue el día',                                             'escribir',                                                                'var(--color-sand)' ],
+    ['/dashboard/habitos',       '08', 'Hábitos', 'Construí consistencia día a día',                               'racha',                                                                   'var(--color-sage)' ],
+  ]
+
   return (
-    <div className="p-5 pb-4" style={{ background: '#09090b', minHeight: '100vh' }}>
-      <div className="max-w-lg mx-auto">
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
+      {/* Warm backdrop */}
+      <div aria-hidden style={{
+        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
+        background:
+          'radial-gradient(circle at 12% 8%, rgba(247,208,170,0.55), transparent 38%), ' +
+          'radial-gradient(circle at 92% 96%, rgba(199,211,176,0.45), transparent 42%), ' +
+          'linear-gradient(180deg, #FAF1E0 0%, #FBF6EA 50%, #F7EFDD 100%)',
+      }} />
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-start mb-6 pt-2"
-        >
-          <div>
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>{saludo()}</p>
-            <h1 className="text-2xl font-bold text-white mt-0.5">{nombre}</h1>
-            <div className={`flex items-center gap-1.5 mt-1 ${estadoCasa.ok ? 'text-emerald-400' : 'text-red-400'}`}>
-              {estadoCasa.ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
-              <span className="text-xs font-medium">{estadoCasa.texto}</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 mt-1">
-            <Link href="/perfil">
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className="cursor-pointer p-2 rounded-xl transition-colors"
-                style={{ color: 'rgba(255,255,255,0.4)' }}
-              >
-                <UserCircle className="w-5 h-5" />
-              </motion.div>
-            </Link>
-          </div>
-        </motion.div>
+      <div className="page-content" style={{ position: 'relative', zIndex: 1 }}>
 
-        {/* Card casa + presupuesto */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.08 }}
-          className="rounded-2xl p-4 mb-4"
-          style={cardStyle}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2.5">
-              <div className="rounded-xl p-2" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                <Users className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.5)' }} />
-              </div>
-              <div>
-                <p className="text-white font-semibold text-sm">{casaNombre}</p>
-                <p className="text-xs font-mono" style={{ color: 'rgba(255,255,255,0.35)' }}>#{casaCodigo}</p>
-              </div>
-            </div>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={copiarCodigo}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+        {/* Masthead */}
+        <div style={{
+          borderBottom: '2px solid var(--color-ink)',
+          padding: '14px 18px 12px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <NidoLogo size={22} />
+          <Link href="/perfil" style={{ textDecoration: 'none' }}>
+            <button style={{
+              border: '1.5px solid var(--color-ink)',
+              background: 'var(--color-bg)',
+              width: 32, height: 32,
+              borderRadius: 4,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-plex-serif)',
+              fontSize: 14, fontStyle: 'italic',
+              color: 'var(--color-ink)',
+            }}>
+              {nombre.charAt(0).toUpperCase()}
+            </button>
+          </Link>
+        </div>
+
+        {/* Date strip */}
+        <div style={{
+          padding: '10px 18px',
+          fontFamily: 'var(--font-plex-mono)',
+          fontSize: 10, color: 'var(--color-ink-2)',
+          letterSpacing: '0.05em',
+          display: 'flex', justifyContent: 'space-between',
+          borderBottom: '1px solid var(--color-rule-soft)',
+        }}>
+          <span>{formatDateStrip()}</span>
+          <span>{casaNombre.toUpperCase()} · {casaCodigo}</span>
+        </div>
+
+        {/* Polaroid */}
+        <div style={{ padding: '14px 18px 0' }}>
+          <div style={{
+            position: 'relative',
+            border: '1.5px solid var(--color-ink)',
+            borderRadius: 2, overflow: 'hidden',
+            height: 160,
+            background: 'var(--color-cream)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div
+              onClick={() => fileRef.current?.click()}
               style={{
-                color: 'rgba(255,255,255,0.5)',
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                transform: 'rotate(-1.5deg)',
+                background: 'var(--color-paper)',
+                padding: '8px 8px 0',
+                border: '1.5px solid var(--color-ink)',
+                boxShadow: '3px 4px 0 rgba(31,28,20,0.28)',
+                cursor: 'pointer',
               }}
             >
-              <Copy className="w-3 h-3" /> Invitar
-            </motion.button>
+              {familyPhoto ? (
+                <img
+                  src={familyPhoto}
+                  alt="familia"
+                  style={{ display: 'block', width: 128, height: 96, objectFit: 'cover' }}
+                />
+              ) : (
+                <div style={{
+                  width: 128, height: 96,
+                  background: 'var(--color-cream)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'var(--font-plex-mono)',
+                  fontSize: 10, color: 'var(--color-ink-2)',
+                  textAlign: 'center', lineHeight: 1.5,
+                }}>
+                  arrastrá<br />una foto
+                </div>
+              )}
+              <div style={{
+                padding: '5px 0 6px',
+                textAlign: 'center',
+                fontFamily: 'var(--font-plex-mono)',
+                fontSize: 9, color: 'var(--color-ink-2)',
+                letterSpacing: '0.06em', textTransform: 'uppercase',
+              }}>
+                o <span style={{ textDecoration: 'underline' }}>buscar archivo</span>
+              </div>
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhoto}
+              style={{ display: 'none' }}
+            />
+          </div>
+        </div>
+
+        {/* Greeting */}
+        <div style={{ padding: '14px 18px 14px' }}>
+          <h1 style={{
+            fontFamily: 'var(--font-plex-serif)',
+            fontWeight: 500, fontStyle: 'italic',
+            fontSize: 30, lineHeight: 1, letterSpacing: '-0.02em',
+            margin: 0, color: 'var(--color-ink)',
+          }}>
+            {saludo()},<br />{nombre}.
+          </h1>
+          <p style={{
+            fontSize: 13, color: 'var(--color-ink-2)',
+            marginTop: 8, fontFamily: 'var(--font-plex-mono)',
+          }}>
+            {resumen.tareasUrgentes > 0 && (
+              <span style={{ color: 'var(--color-warm)' }}>● {resumen.tareasUrgentes} urgente · </span>
+            )}
+            {resumen.tareasPendientes} pendientes · {m(resumen.gastosMes)} este mes
+          </p>
+        </div>
+
+        {/* Budget ledger */}
+        <div style={{ margin: '0 18px 16px', border: '1.5px solid var(--color-ink)', background: 'var(--color-paper)' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '8px 14px', borderBottom: '1px solid var(--color-ink)',
+            fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+            color: 'var(--color-ink-2)', letterSpacing: '0.05em',
+            position: 'relative',
+          }}>
+            <span>§ PRESUPUESTO · {mesActual()}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {resumen.presupuesto > 0 && <span>{pct}%</span>}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setCurOpen(v => !v)}
+                  style={{
+                    background: 'var(--color-ink)', color: 'var(--color-bg)',
+                    border: 0, padding: '3px 8px',
+                    fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+                    letterSpacing: '0.06em', cursor: 'pointer', borderRadius: 2,
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  {cur.code} <span style={{ fontSize: 8, opacity: 0.7 }}>▾</span>
+                </button>
+                {curOpen && (
+                  <>
+                    <div
+                      onClick={() => setCurOpen(false)}
+                      style={{ position: 'fixed', inset: 0, zIndex: 50 }}
+                    />
+                    <div style={{
+                      position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                      background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)',
+                      boxShadow: '3px 4px 0 rgba(31,28,20,0.18)',
+                      zIndex: 51, minWidth: 160, padding: '4px 0',
+                    }}>
+                      {CURRENCIES.map(c => (
+                        <button
+                          key={c.code}
+                          onClick={() => { setCurCode(c.code); setCurOpen(false) }}
+                          style={{
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+                            gap: 8, width: '100%', padding: '7px 12px',
+                            background: c.code === curCode ? 'var(--color-cream)' : 'transparent',
+                            border: 0, cursor: 'pointer',
+                            fontFamily: 'var(--font-plex-mono)', fontSize: 11,
+                            color: 'var(--color-ink)', textAlign: 'left',
+                          }}
+                        >
+                          <span style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                            <span style={{ width: 32, letterSpacing: '0.04em' }}>{c.code}</span>
+                            <span style={{
+                              fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+                              color: 'var(--color-ink-2)', fontSize: 12,
+                            }}>{c.name}</span>
+                          </span>
+                          <span style={{ color: 'var(--color-ink-3)', fontSize: 11 }}>{c.sym}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'var(--color-ink-2)' }}>
+                gastado
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+                fontSize: 30, letterSpacing: '-0.02em', color: 'var(--color-ink)',
+              }}>
+                {m(resumen.gastosMes)}
+              </span>
+            </div>
+            {resumen.presupuesto > 0 && (
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 4 }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'var(--color-ink-2)' }}>
+                  disponible
+                </span>
+                <span style={{
+                  fontFamily: 'var(--font-plex-mono)', fontSize: 14, color: 'var(--color-primary)',
+                }}>
+                  {m(resumen.presupuesto - resumen.gastosMes)}
+                </span>
+              </div>
+            )}
+            {resumen.presupuesto > 0 && (
+              <div style={{ marginTop: 14, height: 4, background: 'var(--color-rule-soft)', position: 'relative' }}>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  width: `${pct}%`,
+                  background: pct >= 90 ? 'var(--color-warm)' : 'var(--color-primary)',
+                  transition: 'width 0.6s ease',
+                }} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Section index */}
+        <div style={{ padding: '0 18px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{
+              fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+              color: 'var(--color-ink-3)', letterSpacing: '0.1em',
+            }}>ÍNDICE</span>
+            <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
           </div>
 
-          {resumen.presupuesto > 0 && (
-            <div>
-              <div className="flex justify-between text-xs mb-1.5">
-                <span style={{ color: 'rgba(255,255,255,0.4)' }}>Gastos del mes</span>
-                <span
-                  className="font-medium"
-                  style={{ color: porcentajePresupuesto >= 90 ? '#f87171' : 'rgba(255,255,255,0.6)' }}
-                >
-                  ${resumen.gastosMes.toLocaleString('es-AR')} / ${resumen.presupuesto.toLocaleString('es-AR')}
+          {secciones.map(([href, num, name, line, badge, dot]) => (
+            <Link key={href} href={href} style={{ textDecoration: 'none' }}>
+              <div style={{
+                width: '100%', padding: '12px 0',
+                borderBottom: '1px solid var(--color-rule-soft)',
+                background: 'transparent',
+                display: 'flex', alignItems: 'baseline', gap: 12,
+              }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'var(--color-ink-3)', width: 22 }}>
+                  {num}
                 </span>
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: dot, flexShrink: 0,
+                  alignSelf: 'center',
+                  border: '1px solid var(--color-ink)',
+                }} />
+                <span style={{
+                  fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+                  fontSize: 19, color: 'var(--color-ink)', width: 90,
+                }}>
+                  {name}
+                </span>
+                <span style={{ flex: 1, fontSize: 12, color: 'var(--color-ink-2)' }}>{line}</span>
+                {badge && (
+                  <span style={{
+                    fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+                    color: 'var(--color-warm)', letterSpacing: '0.04em',
+                  }}>
+                    {badge}
+                  </span>
+                )}
+                <span style={{ color: 'var(--color-ink-3)', fontSize: 14 }}>→</span>
               </div>
-              <div className="rounded-full h-1.5" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${porcentajePresupuesto}%` }}
-                  transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-                  className={`h-1.5 rounded-full ${porcentajePresupuesto >= 90 ? 'bg-red-400' : porcentajePresupuesto >= 70 ? 'bg-amber-400' : 'bg-emerald-400'}`}
-                />
-              </div>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Quick stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12 }}
-          className="grid grid-cols-4 gap-2 mb-4"
-        >
-          {[
-            { label: 'Tareas',  value: resumen.tareasPendientes,                                  accent: '#3b82f6', href: '/dashboard/tareas' },
-            { label: 'Compras', value: resumen.comprasPendientes,                                 accent: '#10b981', href: '/dashboard/compras' },
-            { label: 'Aviso',   value: resumen.proximoRecordatorio ? '1+' : '—',                  accent: '#a855f7', href: '/dashboard/recordatorios' },
-            { label: 'Gastos',  value: `$${(resumen.gastosMes / 1000).toFixed(1)}k`,             accent: '#f59e0b', href: '/dashboard/gastos' },
-          ].map(s => (
-            <Link key={s.href} href={s.href}>
-              <motion.div
-                whileTap={{ scale: 0.93 }}
-                className="rounded-xl p-3 text-center cursor-pointer transition-colors"
-                style={cardStyle}
-              >
-                <p className="text-lg font-bold" style={{ color: s.accent }}>{s.value}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</p>
-              </motion.div>
             </Link>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Gráfico de gastos */}
-        {gastosSemanas.some(s => s.total > 0) && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
-            className="rounded-2xl p-4 mb-4"
-            style={cardStyle}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-4 h-4" style={{ color: '#6366f1' }} />
-              <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>Gastos últimas 4 semanas</p>
-            </div>
-            <div className="h-20">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={gastosSemanas} barSize={28}>
-                  <Bar dataKey="total" radius={[6, 6, 0, 0]}>
-                    {gastosSemanas.map((s, i) => (
-                      <Cell key={i} fill={s.total === maxGasto ? '#6366f1' : 'rgba(255,255,255,0.08)'} />
-                    ))}
-                  </Bar>
-                  <Tooltip
-                    cursor={false}
-                    contentStyle={{
-                      background: '#111113',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    formatter={(v: number) => [`$${v.toLocaleString('es-AR')}`, '']}
-                    labelStyle={{ color: 'rgba(255,255,255,0.4)' }}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex justify-between mt-1">
-              {gastosSemanas.map(s => (
-                <span key={s.semana} className="text-xs flex-1 text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                  {s.semana}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* Actividad reciente */}
+        {/* Bitácora */}
         {actividad.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="rounded-2xl p-4 mb-4"
-            style={cardStyle}
-          >
-            <p className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              Actividad reciente
-            </p>
-            <div className="flex flex-col gap-2.5">
-              {actividad.map(a => (
-                <div key={a.id} className="flex items-start gap-2.5">
-                  <div className="rounded-lg p-1.5 flex-shrink-0 mt-0.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                    {iconoActividad(a.tipo)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                      <span className="text-white font-medium">{a.usuario_nombre}</span> {a.descripcion}
-                    </p>
-                  </div>
-                  <span className="text-xs flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>
-                    {tiempoAtras(a.creado_at)}
-                  </span>
-                </div>
-              ))}
+          <div style={{ padding: '0 18px 18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, marginTop: 8 }}>
+              <span style={{
+                fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+                color: 'var(--color-ink-3)', letterSpacing: '0.1em',
+              }}>BITÁCORA</span>
+              <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
             </div>
-          </motion.div>
+            {actividad.map(a => (
+              <div
+                key={a.id}
+                style={{
+                  display: 'flex', gap: 10, padding: '8px 0',
+                  borderBottom: '1px dashed var(--color-rule-soft)', fontSize: 12,
+                }}
+              >
+                <span style={{
+                  fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+                  color: 'var(--color-ink-3)', width: 38, flexShrink: 0,
+                }}>
+                  {tiempoAtras(a.creado_at)}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <i style={{
+                    fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+                    color: 'var(--color-primary)',
+                  }}>
+                    {a.usuario_nombre}
+                  </i>
+                  <span style={{ color: 'var(--color-ink-2)' }}> {a.descripcion}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         )}
-
-        {/* Secciones */}
-        <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 gap-3">
-          {[
-            { href: '/dashboard/tareas',        icon: CheckSquare,  label: 'Tareas',       sub: `${resumen.tareasPendientes} pendiente${resumen.tareasPendientes !== 1 ? 's' : ''}`, accentColor: '#3b82f6' },
-            { href: '/dashboard/compras',        icon: ShoppingCart, label: 'Compras',      sub: `${resumen.comprasPendientes} por comprar`,                                          accentColor: '#10b981' },
-            { href: '/dashboard/gastos',         icon: Wallet,       label: 'Gastos',       sub: `$${resumen.gastosMes.toLocaleString('es-AR')} este mes`,                            accentColor: '#f59e0b' },
-            { href: '/dashboard/recordatorios',  icon: Bell,         label: 'Recordatorios',sub: resumen.proximoRecordatorio ?? 'Sin próximos',                                       accentColor: '#a855f7' },
-            { href: '/dashboard/comidas',        icon: Utensils,     label: 'Comidas',      sub: 'Registro diario',                                                                   accentColor: '#f97316' },
-          ].map(s => (
-            <motion.div key={s.href} variants={item}>
-              <Link href={s.href}>
-                <motion.div
-                  whileTap={{ scale: 0.96 }}
-                  className="rounded-2xl p-5 cursor-pointer transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                  }}
-                  onMouseEnter={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = `${s.accentColor}33`
-                  }}
-                  onMouseLeave={e => {
-                    const el = e.currentTarget as HTMLElement
-                    el.style.borderColor = 'rgba(255,255,255,0.07)'
-                  }}
-                >
-                  <div
-                    className="rounded-xl p-2.5 w-fit mb-3"
-                    style={{ background: `${s.accentColor}1e` }}
-                  >
-                    <s.icon className="w-5 h-5" style={{ color: s.accentColor }} />
-                  </div>
-                  <p className="font-bold text-white text-base">{s.label}</p>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>{s.sub}</p>
-                </motion.div>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
 
       </div>
     </div>

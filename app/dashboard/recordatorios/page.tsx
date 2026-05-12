@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { ArrowLeft, Plus, Bell, Trash2, Clock, BellOff } from 'lucide-react'
 import { SkeletonList } from '@/components/Skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import PageHeader from '@/components/PageHeader'
 
 type Recordatorio = {
   id: string
@@ -99,12 +100,12 @@ export default function RecordatoriosPage() {
   const pasados = recordatorios.filter(r => esPasado(r.fecha))
   const hoyCount = proximos.filter(r => esHoy(r.fecha)).length
 
-  const cardStyle = { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
-  const inputCls = "w-full rounded-xl px-4 py-2.5 text-white placeholder-white/25 text-sm focus:ring-2 focus:ring-indigo-500/40 outline-none transition-all"
-  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }
+  const cardStyle = { background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)', borderRadius: 2 }
+  const inputCls = "w-full px-0 py-2.5 text-sm focus:outline-none transition-all"
+  const inputStyle = { background: 'transparent', border: 0, borderBottom: '1.5px solid var(--color-ink)', borderRadius: 0, color: 'var(--color-ink)' }
 
   return (
-    <div className="p-5 pb-4">
+    <div style={{ minHeight: '100vh' }}>
       <ConfirmDialog
         open={!!confirmId}
         title="Eliminar recordatorio"
@@ -112,32 +113,26 @@ export default function RecordatoriosPage() {
         onConfirm={() => confirmId && eliminarRecordatorio(confirmId)}
         onCancel={() => setConfirmId(null)}
       />
-      <div className="max-w-lg mx-auto">
+      <PageHeader
+        sectionNum="06"
+        sectionLabel="Agenda"
+        right={`${proximos.length} PRÓXIMOS`}
+        title="Lo que viene."
+        sub="recordatorios de la casa"
+      />
+      <div className="page-content">
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-6 pt-2"
-        >
-          <Link href="/dashboard">
-            <motion.div whileTap={{ scale: 0.9 }} className="cursor-pointer p-1 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              <ArrowLeft className="w-5 h-5" />
-            </motion.div>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5" style={{ color: '#a855f7' }} />
-            <h1 className="text-xl font-bold text-white">Agenda</h1>
-          </div>
-          {hoyCount > 0 && (
-            <span
-              className="ml-auto text-xs font-medium px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.25)', color: '#a855f7' }}
-            >
+        {hoyCount > 0 && (
+          <div style={{ marginTop: 12 }}>
+            <span style={{
+              fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+              color: 'var(--color-warm)', letterSpacing: '0.06em',
+              border: '1px solid var(--color-warm)', padding: '3px 8px',
+            }}>
               {hoyCount} hoy
             </span>
-          )}
-        </motion.div>
+          </div>
+        )}
 
         {/* Form */}
         <motion.form
@@ -168,7 +163,7 @@ export default function RecordatoriosPage() {
               style={inputStyle}
             />
             <div>
-              <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Fecha y hora</label>
+              <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Fecha y hora</label>
               <input
                 type="datetime-local"
                 value={fecha}
@@ -183,7 +178,7 @@ export default function RecordatoriosPage() {
               disabled={loading}
               whileTap={{ scale: 0.97 }}
               className="flex items-center justify-center gap-2 disabled:opacity-50 text-white rounded-xl py-2.5 font-semibold text-sm cursor-pointer"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 12px rgba(99,102,241,0.2)' }}
+              style={{ background: 'var(--color-primary)', boxShadow: 'none' }}
             >
               {loading
                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -196,7 +191,7 @@ export default function RecordatoriosPage() {
         {/* Proximos */}
         {iniciado && proximos.length > 0 && (
           <div className="mb-5">
-            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-ink-3)' }}>
               Proximos ({proximos.length})
             </p>
             <AnimatePresence>
@@ -213,7 +208,7 @@ export default function RecordatoriosPage() {
                     className="rounded-xl p-4 mb-2 flex items-start gap-3"
                     style={
                       hoy
-                        ? { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 12 }
+                        ? { background: 'var(--color-paper)', border: '1px solid rgba(168,85,247,0.25)', borderRadius: 12 }
                         : { ...cardStyle, borderRadius: 12 }
                     }
                   >
@@ -222,7 +217,7 @@ export default function RecordatoriosPage() {
                       style={
                         hoy
                           ? { background: 'rgba(168,85,247,0.12)', color: '#a855f7' }
-                          : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }
+                          : { background: 'var(--color-paper)', color: 'var(--color-ink-2)' }
                       }
                     >
                       <Bell className="w-4 h-4" />
@@ -230,11 +225,11 @@ export default function RecordatoriosPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-sm font-medium">{r.titulo}</p>
                       {r.descripcion && (
-                        <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>{r.descripcion}</p>
+                        <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-2)' }}>{r.descripcion}</p>
                       )}
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Clock className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.25)' }} />
-                        <span className="text-xs" style={{ color: hoy ? '#a855f7' : 'rgba(255,255,255,0.5)' }}>
+                        <Clock className="w-3 h-3" style={{ color: 'var(--color-ink-3)' }} />
+                        <span className="text-xs" style={{ color: hoy ? '#a855f7' : 'var(--color-ink-2)' }}>
                           {formatFecha(r.fecha)}
                         </span>
                         {tiempo && hoy && (
@@ -251,7 +246,7 @@ export default function RecordatoriosPage() {
                       whileTap={{ scale: 0.85 }}
                       onClick={() => setConfirmId(r.id)}
                       className="cursor-pointer p-1 transition-colors"
-                      style={{ color: 'rgba(255,255,255,0.2)' }}
+                      style={{ color: 'var(--color-ink-3)' }}
                     >
                       <Trash2 className="w-4 h-4 hover:text-red-400" />
                     </motion.button>
@@ -265,7 +260,7 @@ export default function RecordatoriosPage() {
         {/* Pasados */}
         {iniciado && pasados.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-ink-3)' }}>
               Historial ({pasados.length})
             </p>
             <AnimatePresence>
@@ -275,23 +270,23 @@ export default function RecordatoriosPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 0.35 }}
                   className="rounded-xl p-4 mb-2 flex items-start gap-3"
-                  style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12 }}
+                  style={{ background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', borderRadius: 12 }}
                 >
                   <div
                     className="rounded-xl p-2 flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.3)' }}
+                    style={{ background: 'var(--color-paper)', color: 'var(--color-ink-2)' }}
                   >
                     <BellOff className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>{r.titulo}</p>
-                    <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>{formatFecha(r.fecha)}</p>
+                    <p className="text-sm" style={{ color: 'var(--color-ink-2)' }}>{r.titulo}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-3)' }}>{formatFecha(r.fecha)}</p>
                   </div>
                   <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => setConfirmId(r.id)}
                     className="cursor-pointer p-1 transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.2)' }}
+                    style={{ color: 'var(--color-ink-3)' }}
                   >
                     <Trash2 className="w-4 h-4" />
                   </motion.button>
@@ -310,9 +305,9 @@ export default function RecordatoriosPage() {
             transition={{ delay: 0.3 }}
             className="text-center mt-16"
           >
-            <Bell className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.12)' }} />
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>No hay recordatorios</p>
-            <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Agrega uno para no olvidar nada</p>
+            <Bell className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+            <p className="text-sm" style={{ color: 'var(--color-ink-2)' }}>No hay recordatorios</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-ink-3)' }}>Agrega uno para no olvidar nada</p>
           </motion.div>
         )}
 
@@ -320,3 +315,8 @@ export default function RecordatoriosPage() {
     </div>
   )
 }
+
+
+
+
+

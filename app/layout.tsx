@@ -1,11 +1,25 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { IBM_Plex_Serif, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
+const plexSerif = IBM_Plex_Serif({
+  variable: "--font-plex-serif",
   subsets: ["latin"],
+  weight: ["500"],
+  style: ["normal", "italic"],
+});
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+});
+
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -20,17 +34,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geist.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-slate-950 antialiased">
+    <html lang="es" className={`${plexSerif.variable} ${plexMono.variable} ${plexSans.variable} h-full`}>
+      <body className="min-h-full flex flex-col antialiased">
         {children}
         <Toaster
-          theme="dark"
+          theme="light"
           position="top-center"
           toastOptions={{
             style: {
-              background: '#1e293b',
-              border: '1px solid #334155',
-              color: '#f1f5f9',
+              background: '#FFFDF7',
+              border: '1.5px solid #2D2418',
+              color: '#2D2418',
+              fontFamily: 'var(--font-plex-mono)',
+              fontSize: 12,
+              letterSpacing: '0.02em',
+              borderRadius: 2,
+              boxShadow: '3px 4px 0 rgba(31,28,20,0.18)',
             },
           }}
         />

@@ -1,8 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Plus, Trash2, Utensils, Dumbbell, Flame, ChevronLeft, ChevronRight, Zap, Search, Sparkles } from 'lucide-react'
+import PageHeader from '@/components/PageHeader'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { buscarAlimento, buscarEjercicio, calcularCaloriasEjercicio, ALIMENTOS } from '@/lib/calorias'
@@ -70,7 +71,7 @@ function generarInsight(
     const top = [...ejerciciosList].sort((a, b) => b.calorias - a.calorias)[0]
     if (top.calorias > 0) {
       const mins = Math.round(top.calorias / 5)
-      return `"${top.nombre}" quemó ${top.calorias} kcal — equivale a caminar ~${mins} min.`
+      return `”${top.nombre}” quemó ${top.calorias} kcal — equivale a caminar ~${mins} min.`
     }
   }
   if (totalCalorias > 0 && totalQuemadas === 0)
@@ -219,50 +220,43 @@ export default function ComidasPage() {
   const esCardioNombre = (nombre: string) =>
     nombre.toLowerCase().includes('caminar') || nombre.toLowerCase().includes('correr')
 
-  const cardStyle = { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16 }
-  const inputCls = "w-full rounded-xl px-4 py-2.5 text-white placeholder-white/25 text-sm focus:ring-2 focus:ring-indigo-500/40 outline-none transition-all"
-  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }
+  const cardStyle = { background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)', borderRadius: 2 }
+  const inputCls = "w-full px-0 py-2.5 text-sm focus:outline-none transition-all"
+  const inputStyle = { background: 'transparent', border: 0, borderBottom: '1.5px solid var(--color-ink)', borderRadius: 0, color: 'var(--color-ink)' }
 
   return (
-    <div className="p-5 pb-8">
-      <div className="max-w-lg mx-auto">
+    <div style={{ minHeight: '100vh' }}>
+      <PageHeader
+        sectionNum="05"
+        sectionLabel="Comidas"
+        right={`${formatDisplayDate(selectedDate).toUpperCase()}`}
+        title="Comidas del día."
+        sub={`${totalCalorias} kcal · ${comidas.length} entradas`}
+      />
 
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 mb-5 pt-2">
-          <Link href="/dashboard">
-            <motion.div whileTap={{ scale: 0.9 }} className="cursor-pointer p-1 transition-colors" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              <ArrowLeft className="w-5 h-5" />
-            </motion.div>
-          </Link>
-          <div className="flex items-center gap-2 flex-1">
-            <Utensils className="w-5 h-5" style={{ color: '#f97316' }} />
-            <h1 className="text-xl font-bold text-white">Comidas</h1>
-          </div>
+      <div className="page-content">
 
-          {/* Date navigator */}
-          <div className="flex items-center gap-1">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navDate(-1)}
-              className="cursor-pointer p-1.5 rounded-xl transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </motion.button>
-            <span className="text-sm font-semibold text-white px-2 min-w-[52px] text-center">
-              {formatDisplayDate(selectedDate)}
-            </span>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navDate(1)}
-              disabled={esHoy}
-              className="cursor-pointer p-1.5 rounded-xl transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)', color: esHoy ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)' }}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </motion.button>
-          </div>
-        </motion.div>
+        {/* Date navigator */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--color-rule-soft)' }}>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navDate(-1)}
+            style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)', padding: '4px 8px', cursor: 'pointer', borderRadius: 2 }}
+          >
+              <ChevronLeft className="w-4 h-4" style={{ color: 'var(--color-ink)' }} />
+          </motion.button>
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'var(--color-ink)', minWidth: 52, textAlign: 'center' }}>
+            {formatDisplayDate(selectedDate)}
+          </span>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navDate(1)}
+            disabled={esHoy}
+            style={{ background: 'var(--color-paper)', border: '1.5px solid var(--color-ink)', padding: '4px 8px', cursor: esHoy ? 'default' : 'pointer', borderRadius: 2, opacity: esHoy ? 0.3 : 1 }}
+          >
+            <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-ink)' }} />
+          </motion.button>
+        </div>
 
         {/* Stats row */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="grid grid-cols-3 gap-2 mb-5">
@@ -317,7 +311,7 @@ export default function ComidasPage() {
               style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.14)' }}
             >
               <Sparkles className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#6366f1' }} />
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--color-ink-2)' }}>
                 {insight}
               </p>
             </motion.div>
@@ -325,14 +319,14 @@ export default function ComidasPage() {
         </AnimatePresence>
 
         {/* Tabs */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="flex gap-1 rounded-2xl p-1 mb-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="flex gap-1 rounded-2xl p-1 mb-5" style={{ background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)' }}>
           <button
             onClick={() => { setTab('comidas'); setShowForm(false) }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium cursor-pointer transition-all"
             style={
               tab === 'comidas'
                 ? { background: 'rgba(249,115,22,0.12)', color: '#f97316', border: '1px solid rgba(249,115,22,0.2)' }
-                : { color: 'rgba(255,255,255,0.4)', border: '1px solid transparent' }
+                : { color: 'var(--color-ink-2)', border: '1px solid transparent' }
             }
           >
             <Utensils className="w-4 h-4" />
@@ -344,7 +338,7 @@ export default function ComidasPage() {
             style={
               tab === 'ejercicio'
                 ? { background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.2)' }
-                : { color: 'rgba(255,255,255,0.4)', border: '1px solid transparent' }
+                : { color: 'var(--color-ink-2)', border: '1px solid transparent' }
             }
           >
             <Dumbbell className="w-4 h-4" />
@@ -352,7 +346,7 @@ export default function ComidasPage() {
           </button>
         </motion.div>
 
-        {/* ─── COMIDAS TAB ─── */}
+        {/* â”€â”€â”€ COMIDAS TAB â”€â”€â”€ */}
         <AnimatePresence mode="wait">
           {tab === 'comidas' && (
             <motion.div key="comidas" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }}>
@@ -366,7 +360,7 @@ export default function ComidasPage() {
                   style={
                     showForm
                       ? { background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', color: '#f97316' }
-                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.7)' }
+                      : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                   }
                 >
                   <Plus className="w-4 h-4" />
@@ -391,7 +385,7 @@ export default function ComidasPage() {
                     <div className="flex flex-col gap-3">
                       {/* Food search */}
                       <div className="relative">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(255,255,255,0.25)' }} />
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-ink-3)' }} />
                         <input
                           type="text"
                           placeholder="Que comiste? (ej: milanesa)"
@@ -404,7 +398,7 @@ export default function ComidasPage() {
                         />
                       </div>
                       {inputComida.trim() && (
-                        <p className="text-xs -mt-1" style={{ color: caloriasEstimadas !== null ? '#f97316' : 'rgba(255,255,255,0.3)' }}>
+                        <p className="text-xs -mt-1" style={{ color: caloriasEstimadas !== null ? '#f97316' : 'var(--color-ink-3)' }}>
                           {caloriasEstimadas !== null
                             ? `~${caloriasEstimadas} kcal estimadas`
                             : 'Sin estimacion disponible'}
@@ -413,7 +407,7 @@ export default function ComidasPage() {
 
                       {/* Tipo selector */}
                       <div>
-                        <label className="text-xs mb-1.5 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Momento del dia</label>
+                        <label className="text-xs mb-1.5 block" style={{ color: 'var(--color-ink-2)' }}>Momento del dia</label>
                         <div className="grid grid-cols-4 gap-1.5">
                           {TIPOS.map(t => (
                             <button
@@ -424,7 +418,7 @@ export default function ComidasPage() {
                               style={
                                 tipoComida === t.valor
                                   ? { background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.35)', color: '#f97316' }
-                                  : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)' }
+                                  : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                               }
                             >
                               {t.label}
@@ -435,7 +429,7 @@ export default function ComidasPage() {
 
                       {/* Manual calories */}
                       <div>
-                        <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Ajustar calorias (opcional)</label>
+                        <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Ajustar calorias (opcional)</label>
                         <input
                           type="number"
                           placeholder={caloriasEstimadas !== null ? String(caloriasEstimadas) : '0'}
@@ -451,7 +445,7 @@ export default function ComidasPage() {
                         type="submit"
                         whileTap={{ scale: 0.97 }}
                         className="flex items-center justify-center gap-2 text-white rounded-xl py-2.5 font-semibold text-sm cursor-pointer"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 12px rgba(99,102,241,0.2)' }}
+                        style={{ background: 'var(--color-primary)', boxShadow: 'none' }}
                       >
                         <Plus className="w-4 h-4" />
                         Registrar
@@ -467,7 +461,7 @@ export default function ComidasPage() {
                 if (items.length === 0) return null
                 return (
                   <div key={t.valor} className="mb-4">
-                    <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                    <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-ink-3)' }}>
                       {t.label}
                     </p>
                     <AnimatePresence>
@@ -483,7 +477,7 @@ export default function ComidasPage() {
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-white text-sm font-medium truncate">{c.descripcion}</p>
-                            <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{c.hora}</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-2)' }}>{c.hora}</p>
                           </div>
                           <span
                             className="text-xs font-semibold px-2 py-1 rounded-lg flex-shrink-0"
@@ -495,7 +489,7 @@ export default function ComidasPage() {
                             whileTap={{ scale: 0.85 }}
                             onClick={() => eliminarComida(c.id)}
                             className="cursor-pointer p-1 transition-colors flex-shrink-0"
-                            style={{ color: 'rgba(255,255,255,0.2)' }}
+                            style={{ color: 'var(--color-ink-3)' }}
                           >
                             <Trash2 className="w-4 h-4" />
                           </motion.button>
@@ -508,14 +502,14 @@ export default function ComidasPage() {
 
               {comidas.length === 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-12">
-                  <Utensils className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Registra lo que comiste hoy</p>
+                  <Utensils className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+                  <p className="text-sm" style={{ color: 'var(--color-ink-2)' }}>Registra lo que comiste hoy</p>
                 </motion.div>
               )}
             </motion.div>
           )}
 
-          {/* ─── EJERCICIO TAB ─── */}
+          {/* â”€â”€â”€ EJERCICIO TAB â”€â”€â”€ */}
           {tab === 'ejercicio' && (
             <motion.div key="ejercicio" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }}>
 
@@ -528,7 +522,7 @@ export default function ComidasPage() {
                   style={
                     showForm
                       ? { background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', color: '#10b981' }
-                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.7)' }
+                      : { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                   }
                 >
                   <Plus className="w-4 h-4" />
@@ -553,7 +547,7 @@ export default function ComidasPage() {
                     <div className="flex flex-col gap-3">
                       {/* Exercise search */}
                       <div className="relative">
-                        <Dumbbell className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'rgba(255,255,255,0.25)' }} />
+                        <Dumbbell className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-ink-3)' }} />
                         <input
                           type="text"
                           placeholder="Que ejercicio? (ej: flexiones)"
@@ -574,7 +568,7 @@ export default function ComidasPage() {
                       {/* Sugerencias rápidas cuando input vacío */}
                       {!inputEjercicio.trim() && (
                         <div>
-                          <p className="text-xs mb-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>Sugerencias</p>
+                          <p className="text-xs mb-1.5" style={{ color: 'var(--color-ink-2)' }}>Sugerencias</p>
                           <div className="grid grid-cols-2 gap-1.5">
                             {[
                               { nombre: 'flexiones',   desc: '3×10 series', kcal: 12 },
@@ -594,7 +588,7 @@ export default function ComidasPage() {
                               >
                                 <div>
                                   <p className="text-xs font-medium text-white capitalize">{s.nombre}</p>
-                                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{s.desc}</p>
+                                  <p className="text-xs" style={{ color: 'var(--color-ink-2)' }}>{s.desc}</p>
                                 </div>
                                 <span className="text-xs font-semibold ml-2 flex-shrink-0" style={{ color: '#10b981' }}>~{s.kcal}</span>
                               </motion.button>
@@ -606,7 +600,7 @@ export default function ComidasPage() {
                       {/* Series + Reps */}
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>Series</label>
+                          <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>Series</label>
                           <input
                             type="number"
                             value={series}
@@ -617,7 +611,7 @@ export default function ComidasPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                          <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>
                             {esCardioNombre(inputEjercicio) ? 'Pasos' : 'Reps'}
                           </label>
                           <input
@@ -648,7 +642,7 @@ export default function ComidasPage() {
                         type="submit"
                         whileTap={{ scale: 0.97 }}
                         className="flex items-center justify-center gap-2 text-white rounded-xl py-2.5 font-semibold text-sm cursor-pointer"
-                        style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 4px 12px rgba(99,102,241,0.2)' }}
+                        style={{ background: 'var(--color-primary)', boxShadow: 'none' }}
                       >
                         <Plus className="w-4 h-4" />
                         Registrar
@@ -661,7 +655,7 @@ export default function ComidasPage() {
               {/* Exercise list */}
               {ejercicios.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  <p className="text-xs font-medium uppercase tracking-wider mb-2 px-1" style={{ color: 'var(--color-ink-3)' }}>
                     Actividad ({ejercicios.length})
                   </p>
                   <AnimatePresence>
@@ -683,7 +677,7 @@ export default function ComidasPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-white text-sm font-medium truncate">{ej.nombre}</p>
-                          <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{ej.descripcion}</p>
+                          <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-2)' }}>{ej.descripcion}</p>
                         </div>
                         <span
                           className="text-xs font-semibold px-2 py-1 rounded-lg flex-shrink-0"
@@ -695,7 +689,7 @@ export default function ComidasPage() {
                           whileTap={{ scale: 0.85 }}
                           onClick={() => eliminarEjercicio(ej.id)}
                           className="cursor-pointer p-1 transition-colors flex-shrink-0"
-                          style={{ color: 'rgba(255,255,255,0.2)' }}
+                          style={{ color: 'var(--color-ink-3)' }}
                         >
                           <Trash2 className="w-4 h-4" />
                         </motion.button>
@@ -707,8 +701,8 @@ export default function ComidasPage() {
 
               {ejercicios.length === 0 && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-12">
-                  <Dumbbell className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Registra tu actividad fisica</p>
+                  <Dumbbell className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+                  <p className="text-sm" style={{ color: 'var(--color-ink-2)' }}>Registra tu actividad fisica</p>
                 </motion.div>
               )}
             </motion.div>
@@ -719,3 +713,10 @@ export default function ComidasPage() {
     </div>
   )
 }
+
+
+
+
+
+
+

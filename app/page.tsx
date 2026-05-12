@@ -1,526 +1,300 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, Users, Shield, Smartphone } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowRight } from 'lucide-react'
 
-// ─── SVG Illustrations ───────────────────────────────────────────────────────
-
-function TareasIllustration() {
+function NidoLogo({ size = 28 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect x="20" y="24" width="120" height="76" rx="10" fill="#1e3a5f" fillOpacity="0.4" />
-      <rect x="20" y="24" width="120" height="18" rx="10" fill="#2563eb" fillOpacity="0.25" />
-      <rect x="20" y="35" width="120" height="7" fill="#2563eb" fillOpacity="0.25" />
-      <rect x="34" y="54" width="70" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.2" />
-      <rect x="34" y="54" width="40" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.7" />
-      <rect x="34" y="68" width="70" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.2" />
-      <rect x="34" y="68" width="58" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.7" />
-      <rect x="34" y="82" width="70" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.2" />
-      <rect x="34" y="82" width="25" height="7" rx="3.5" fill="#3b82f6" fillOpacity="0.7" />
-      <circle cx="118" cy="34" r="18" fill="#1e40af" />
-      <circle cx="118" cy="34" r="14" fill="#2563eb" />
-      <path d="M111 34L116 39L126 28" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <span style={{
+      fontFamily: 'var(--font-plex-serif)',
+      fontWeight: 500, fontSize: size,
+      color: 'var(--color-ink)', letterSpacing: '-0.01em',
+      display: 'inline-flex', alignItems: 'flex-end', gap: size * 0.18,
+    }}>
+      <span style={{
+        display: 'inline-block', position: 'relative',
+        width: size * 1.05, height: size * 0.7, marginBottom: size * 0.06,
+      }}>
+        <span style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: size * 0.5,
+          borderTopLeftRadius: '100% 100%', borderTopRightRadius: '100% 100%',
+          border: '1.6px solid var(--color-ink)', borderBottom: 0,
+        }} />
+        <span style={{
+          position: 'absolute', bottom: size * 0.06, left: '50%',
+          transform: 'translateX(-50%)',
+          width: size * 0.32, height: size * 0.32,
+          borderRadius: '50%', background: 'var(--color-primary)',
+        }} />
+      </span>
+      <span style={{ lineHeight: 1 }}>
+        Nido<span style={{ color: 'var(--color-primary)' }}>.</span>
+      </span>
+    </span>
   )
 }
 
-function DineroIllustration() {
-  return (
-    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect x="20" y="16" width="120" height="88" rx="10" fill="#451a03" fillOpacity="0.3" />
-      <rect x="32" y="62" width="16" height="34" rx="4" fill="#f59e0b" fillOpacity="0.3" />
-      <rect x="54" y="50" width="16" height="46" rx="4" fill="#f59e0b" fillOpacity="0.5" />
-      <rect x="76" y="36" width="16" height="60" rx="4" fill="#f59e0b" fillOpacity="0.7" />
-      <rect x="98" y="22" width="16" height="74" rx="4" fill="#f59e0b" />
-      <path d="M40 64L62 52L84 38L106 24" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" />
-      <circle cx="106" cy="24" r="6" fill="#f59e0b" />
-      <circle cx="40" cy="64" r="4" fill="#f59e0b" fillOpacity="0.6" />
-      <line x1="28" y1="96" x2="132" y2="96" stroke="#f59e0b" strokeOpacity="0.2" strokeWidth="1" />
-    </svg>
-  )
-}
-
-function ComprasIllustration() {
-  return (
-    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect x="20" y="16" width="120" height="88" rx="10" fill="#052e16" fillOpacity="0.4" />
-      <path d="M48 44H112L105 92H55L48 44Z" fill="#10b981" fillOpacity="0.12" stroke="#10b981" strokeOpacity="0.35" strokeWidth="1.5" />
-      <path d="M62 44V36C62 26 98 26 98 36V44" stroke="#10b981" strokeOpacity="0.6" strokeWidth="2" strokeLinecap="round" />
-      <line x1="62" y1="62" x2="98" y2="62" stroke="#10b981" strokeOpacity="0.5" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="64" y1="72" x2="94" y2="72" stroke="#10b981" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="66" y1="82" x2="88" y2="82" stroke="#10b981" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="112" cy="92" r="16" fill="#064e3b" />
-      <circle cx="112" cy="92" r="12" fill="#059669" />
-      <path d="M106 92L110 96L119 86" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function AgendaIllustration() {
-  return (
-    <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <rect x="20" y="22" width="108" height="84" rx="10" fill="#2e1065" fillOpacity="0.4" stroke="#a855f7" strokeOpacity="0.2" strokeWidth="1" />
-      <rect x="20" y="22" width="108" height="22" rx="10" fill="#7c3aed" fillOpacity="0.25" />
-      <rect x="20" y="35" width="108" height="9" fill="#7c3aed" fillOpacity="0.25" />
-      <rect x="42" y="16" width="7" height="14" rx="3.5" fill="#a855f7" fillOpacity="0.8" />
-      <rect x="99" y="16" width="7" height="14" rx="3.5" fill="#a855f7" fillOpacity="0.8" />
-      <circle cx="42" cy="62" r="5" fill="#a855f7" fillOpacity="0.4" />
-      <circle cx="62" cy="62" r="5" fill="#a855f7" />
-      <circle cx="82" cy="62" r="5" fill="#a855f7" fillOpacity="0.4" />
-      <circle cx="102" cy="62" r="5" fill="#a855f7" fillOpacity="0.2" />
-      <circle cx="42" cy="80" r="5" fill="#a855f7" fillOpacity="0.2" />
-      <circle cx="62" cy="80" r="5" fill="#a855f7" fillOpacity="0.4" />
-      <circle cx="82" cy="80" r="5" fill="#a855f7" fillOpacity="0.2" />
-      <circle cx="128" cy="30" r="14" fill="#581c87" />
-      <circle cx="128" cy="30" r="10" fill="#9333ea" />
-      <path d="M124 30L127 33L133 26" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const features = [
-  {
-    Illustration: TareasIllustration,
-    accentColor: '#3b82f6',
-    borderColor: 'rgba(59,130,246,0.18)',
-    glowColor: 'rgba(59,130,246,0.06)',
-    title: 'Tareas',
-    tag: 'Del hogar',
-    desc: 'Organizá y distribuí las tareas. Con prioridades, fechas límite y seguimiento por persona.',
-  },
-  {
-    Illustration: DineroIllustration,
-    accentColor: '#f59e0b',
-    borderColor: 'rgba(245,158,11,0.18)',
-    glowColor: 'rgba(245,158,11,0.06)',
-    title: 'Dinero',
-    tag: 'Finanzas',
-    desc: 'Controlá los gastos del mes, fijá un presupuesto y mantené las finanzas bajo control.',
-  },
-  {
-    Illustration: ComprasIllustration,
-    accentColor: '#10b981',
-    borderColor: 'rgba(16,185,129,0.18)',
-    glowColor: 'rgba(16,185,129,0.06)',
-    title: 'Compras',
-    tag: 'Lista compartida',
-    desc: 'Una lista siempre actualizada. Marcá lo que ya compraste directo desde el supermercado.',
-  },
-  {
-    Illustration: AgendaIllustration,
-    accentColor: '#a855f7',
-    borderColor: 'rgba(168,85,247,0.18)',
-    glowColor: 'rgba(168,85,247,0.06)',
-    title: 'Agenda',
-    tag: 'Recordatorios',
-    desc: 'Nunca más olvides pagar una factura o una fecha importante. Todo a tiempo.',
-  },
+const secciones = [
+  { num: '01', name: 'Tareas',   desc: 'Compartidas y con prioridad',  dot: 'var(--color-sage)'  },
+  { num: '02', name: 'Compras',  desc: 'Lista compartida del super',    dot: 'var(--color-blush)' },
+  { num: '03', name: 'Dinero',   desc: 'Gastos, presupuesto y ahorro',  dot: 'var(--color-sand)'  },
+  { num: '04', name: 'Comidas',  desc: 'Registro diario de calorías',   dot: 'var(--color-cream)' },
+  { num: '05', name: 'Agenda',   desc: 'Recordatorios de la casa',      dot: 'var(--color-sky)'   },
 ]
-
-const steps = [
-  { n: '01', title: 'Creá tu cuenta', desc: 'Rápido y gratis. Solo tu nombre, email y contraseña.' },
-  { n: '02', title: 'Invitá a tu familia', desc: 'Generá un código único y compartíselo. Cada uno se une con su cuenta.' },
-  { n: '03', title: 'Empezá a organizarse', desc: 'Tareas, gastos, compras y recordatorios disponibles al instante.' },
-]
-
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen text-white" style={{ background: '#09090b' }}>
+    <div style={{ minHeight: '100vh', color: 'var(--color-ink)' }}>
 
       {/* Nav */}
-      <nav
-        className="fixed top-0 w-full z-50 border-b"
-        style={{
-          background: 'rgba(9,9,11,0.85)',
-          backdropFilter: 'blur(16px)',
-          borderColor: 'rgba(255,255,255,0.06)',
-        }}
-      >
-        <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-            >
-              <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4">
-                <path d="M10 3L17 9V17H13V13H7V17H3V9L10 3Z" fill="white" />
-              </svg>
-            </div>
-            <span className="font-bold text-white tracking-tight text-base">Nido</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-medium transition-colors"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'white')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
-            >
-              Iniciar sesión
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm font-semibold text-white px-4 py-1.5 rounded-lg transition-all"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-            >
-              Empezar gratis
-            </Link>
-          </div>
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'var(--color-bg)',
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(45,36,24,0.04) 31px, rgba(45,36,24,0.04) 32px)',
+        borderBottom: '1.5px solid var(--color-ink)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '12px 24px',
+      }}>
+        <NidoLogo size={22} />
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <Link href="/login" style={{
+            fontFamily: 'var(--font-plex-mono)', fontSize: 11,
+            color: 'var(--color-ink-2)', letterSpacing: '0.06em',
+            textDecoration: 'none', textTransform: 'uppercase',
+          }}>
+            Entrar
+          </Link>
+          <Link href="/login" style={{
+            fontFamily: 'var(--font-plex-mono)', fontSize: 11,
+            background: 'var(--color-primary)', color: 'var(--color-bg)',
+            padding: '7px 14px', borderRadius: 4, letterSpacing: '0.06em',
+            textDecoration: 'none', textTransform: 'uppercase',
+          }}>
+            Crear cuenta →
+          </Link>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative pt-36 pb-24 px-4 text-center overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)',
-          }}
-        />
+      <section style={{
+        maxWidth: 480, margin: '0 auto', padding: '56px 24px 40px',
+        borderBottom: '1px solid var(--color-rule-soft)',
+      }}>
         <motion.div
-          initial={{ opacity: 0, y: 32 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 border"
-            style={{
-              background: 'rgba(99,102,241,0.1)',
-              borderColor: 'rgba(99,102,241,0.25)',
-              color: '#a5b4fc',
-            }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-            Para familias que quieren organizarse
-          </motion.div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <span style={{
+              fontFamily: 'var(--font-plex-mono)', fontSize: 10,
+              color: 'var(--color-ink-3)', letterSpacing: '0.1em',
+            }}>
+              —— DIARIO DE LA CASA
+            </span>
+            <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
+          </div>
 
-          <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
-            <span
-              style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              El hogar de tu familia,
-            </span>
-            <br />
-            <span
-              style={{
-                background: 'linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #c084fc 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              organizado.
-            </span>
+          <h1 style={{
+            fontFamily: 'var(--font-plex-serif)', fontWeight: 500, fontStyle: 'italic',
+            fontSize: 'clamp(40px, 10vw, 56px)', lineHeight: 0.95,
+            letterSpacing: '-0.02em', margin: '0 0 20px',
+            color: 'var(--color-ink)',
+          }}>
+            Tu casa,<br />en orden.
           </h1>
 
-          <p className="text-base sm:text-lg max-w-md mx-auto mb-9 leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-            Tareas, dinero, compras y agenda. Todo en un solo lugar, para todos los que viven juntos.
+          <p style={{
+            fontSize: 15, color: 'var(--color-ink-2)', lineHeight: 1.65,
+            marginBottom: 28, maxWidth: 360,
+          }}>
+            Una bitácora compartida para toda la familia. Tareas, gastos, compras y agenda — anotados como en el cuaderno de la cocina.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', boxShadow: '0 0 24px rgba(99,102,241,0.3)' }}
-            >
-              Empezar gratis <ArrowRight className="w-4 h-4" />
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <Link href="/login" style={{
+              fontFamily: 'var(--font-plex-mono)', fontSize: 12,
+              background: 'var(--color-primary)', color: 'var(--color-bg)',
+              padding: '13px 24px', borderRadius: 4, letterSpacing: '0.08em',
+              textDecoration: 'none', textTransform: 'uppercase',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+            }}>
+              Abrir el diario →
             </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-80"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.7)',
-              }}
-            >
+            <Link href="/login" style={{
+              fontFamily: 'var(--font-plex-mono)', fontSize: 11,
+              color: 'var(--color-ink-2)', padding: '13px 0',
+              textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',
+            }}>
               Ya tengo cuenta
             </Link>
           </div>
         </motion.div>
+      </section>
 
-        {/* Dashboard preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 48 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-16 mx-auto max-w-xs"
-        >
-          <div
-            className="rounded-2xl p-4 text-left"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.08)',
-            }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <div className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>Casa García</div>
-                <div className="text-sm font-semibold text-white">Buen día, María</div>
-              </div>
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-              >
-                M
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mb-3">
-              {[
-                { l: 'Tareas', v: '4 pendientes', c: '#3b82f6' },
-                { l: 'Dinero', v: '$42.500', c: '#f59e0b' },
-                { l: 'Compras', v: '7 ítems', c: '#10b981' },
-                { l: 'Agenda', v: '2 hoy', c: '#a855f7' },
-              ].map(s => (
-                <div
-                  key={s.l}
-                  className="rounded-xl p-3"
-                  style={{ background: `${s.c}12`, border: `1px solid ${s.c}25` }}
-                >
-                  <div className="text-xs mb-0.5" style={{ color: `${s.c}99` }}>{s.l}</div>
-                  <div className="text-sm font-semibold" style={{ color: s.c }}>{s.v}</div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-2">
-              {[
-                { t: 'Comprar jabón', done: true },
-                { t: 'Pagar la luz', done: false },
-                { t: 'Barrer la cocina', done: false },
-              ].map(item => (
-                <div key={item.t} className="flex items-center gap-2">
-                  <div
-                    className="w-3.5 h-3.5 rounded-full flex-shrink-0"
-                    style={{
-                      background: item.done ? '#6366f1' : 'transparent',
-                      border: `1.5px solid ${item.done ? '#6366f1' : 'rgba(255,255,255,0.15)'}`,
-                    }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{
-                      color: item.done ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.6)',
-                      textDecoration: item.done ? 'line-through' : 'none',
-                    }}
-                  >
-                    {item.t}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {/* Mock preview */}
+      <section style={{ maxWidth: 480, margin: '0 auto', padding: '40px 24px', borderBottom: '1px solid var(--color-rule-soft)' }}>
+        <div style={{ border: '1.5px solid var(--color-ink)', background: 'var(--color-paper)' }}>
+          {/* Masthead mock */}
+          <div style={{
+            borderBottom: '2px solid var(--color-ink)',
+            padding: '12px 16px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <NidoLogo size={18} />
+            <div style={{
+              width: 28, height: 28, border: '1.5px solid var(--color-ink)',
+              borderRadius: 3, background: 'var(--color-bg)',
+              fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+              fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--color-ink)',
+            }}>M</div>
           </div>
-        </motion.div>
+
+          {/* Date strip mock */}
+          <div style={{
+            padding: '8px 16px',
+            borderBottom: '1px solid var(--color-rule-soft)',
+            fontFamily: 'var(--font-plex-mono)', fontSize: 9,
+            color: 'var(--color-ink-2)', letterSpacing: '0.06em',
+            display: 'flex', justifyContent: 'space-between',
+          }}>
+            <span>LUN · 05 ENE 2026</span>
+            <span>EL NIDO · GARCÍA·21</span>
+          </div>
+
+          {/* Greeting mock */}
+          <div style={{ padding: '12px 16px 10px' }}>
+            <div style={{
+              fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+              fontSize: 20, letterSpacing: '-0.02em', color: 'var(--color-ink)',
+              lineHeight: 1.1,
+            }}>
+              Buenas tardes,<br />María.
+            </div>
+            <p style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'var(--color-ink-2)', marginTop: 6 }}>
+              <span style={{ color: 'var(--color-warm)' }}>● 1 urgente</span> · 3 pendientes · $42.500 este mes
+            </p>
+          </div>
+
+          {/* Index mock */}
+          <div style={{ padding: '0 16px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'var(--color-ink-3)', letterSpacing: '0.1em' }}>ÍNDICE</span>
+              <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
+            </div>
+            {secciones.slice(0, 3).map(s => (
+              <div key={s.num} style={{
+                display: 'flex', alignItems: 'baseline', gap: 8, padding: '7px 0',
+                borderBottom: '1px solid var(--color-rule-soft)',
+              }}>
+                <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'var(--color-ink-3)', width: 18 }}>{s.num}</span>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot, border: '1px solid var(--color-ink)', alignSelf: 'center', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--color-ink)' }}>{s.name}</span>
+                <span style={{ flex: 1, fontSize: 10, color: 'var(--color-ink-2)' }}>{s.desc}</span>
+                <span style={{ color: 'var(--color-ink-3)', fontSize: 11 }}>→</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Features */}
-      <section className="py-20 px-4" style={{ background: 'rgba(255,255,255,0.015)' }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#818cf8' }}>
-              Funcionalidades
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3" style={{ color: 'white' }}>
-              Todo lo que tu hogar necesita
-            </h2>
-            <p className="text-base" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              Cuatro módulos diseñados para la vida real de una familia.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {features.map((f, i) => (
-              <motion.div
-                key={f.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-2xl overflow-hidden group"
-                style={{
-                  background: `linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))`,
-                  border: `1px solid ${f.borderColor}`,
-                  boxShadow: `0 0 40px ${f.glowColor}`,
-                }}
-              >
-                {/* Illustration */}
-                <div
-                  className="h-36 w-full p-4 transition-all duration-500 group-hover:scale-105"
-                  style={{ background: `${f.accentColor}08` }}
-                >
-                  <f.Illustration />
-                </div>
-                {/* Text */}
-                <div className="p-5 pt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
-                      style={{ background: `${f.accentColor}18`, color: f.accentColor }}
-                    >
-                      {f.tag}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-lg text-white mb-1.5">{f.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                    {f.desc}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      <section style={{ maxWidth: 480, margin: '0 auto', padding: '40px 24px', borderBottom: '1px solid var(--color-rule-soft)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'var(--color-ink-3)', letterSpacing: '0.1em' }}>FUNCIONA ASÍ</span>
+          <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
         </div>
+
+        {[
+          { n: '01', title: 'Creá tu cuenta', desc: 'Rápido y gratis. Solo tu nombre, email y contraseña.' },
+          { n: '02', title: 'Invitá a tu familia', desc: 'Generá un código único y compartíselo. Cada uno se une con su cuenta.' },
+          { n: '03', title: 'Empezá a organizarse', desc: 'Todo disponible al instante desde el celular o la compu.' },
+        ].map((s, i) => (
+          <motion.div
+            key={s.n}
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            style={{
+              display: 'flex', gap: 16, padding: '16px 0',
+              borderBottom: '1px solid var(--color-rule-soft)',
+            }}
+          >
+            <span style={{
+              fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic',
+              fontSize: 24, color: 'var(--color-primary)',
+              flexShrink: 0, width: 32, lineHeight: 1,
+            }}>{s.n}</span>
+            <div>
+              <div style={{ fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic', fontSize: 17, color: 'var(--color-ink)', marginBottom: 4 }}>{s.title}</div>
+              <div style={{ fontSize: 13, color: 'var(--color-ink-2)', lineHeight: 1.5 }}>{s.desc}</div>
+            </div>
+          </motion.div>
+        ))}
       </section>
 
-      {/* How it works */}
-      <section className="py-20 px-4">
-        <div className="max-w-lg mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#818cf8' }}>
-              Cómo funciona
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: 'white' }}>
-              Empezá en minutos
-            </h2>
-          </div>
-          <div className="space-y-8">
-            {steps.map((s, i) => (
-              <motion.div
-                key={s.n}
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-start gap-5"
-              >
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0"
-                  style={{
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                    boxShadow: '0 4px 16px rgba(99,102,241,0.25)',
-                    color: 'white',
-                  }}
-                >
-                  {s.n}
-                </div>
-                <div className="pt-1.5">
-                  <div className="font-semibold text-white mb-0.5">{s.title}</div>
-                  <div className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>{s.desc}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      {/* Secciones */}
+      <section style={{ maxWidth: 480, margin: '0 auto', padding: '40px 24px', borderBottom: '1px solid var(--color-rule-soft)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'var(--color-ink-3)', letterSpacing: '0.1em' }}>QUÉ INCLUYE</span>
+          <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
         </div>
-      </section>
-
-      {/* Pillars */}
-      <section className="py-16 px-4" style={{ background: 'rgba(255,255,255,0.015)' }}>
-        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {[
-            {
-              icon: Users,
-              title: 'Para toda la familia',
-              desc: 'Cada miembro con su cuenta. Todo sincronizado y visible para todos.',
-            },
-            {
-              icon: Shield,
-              title: 'Privado y seguro',
-              desc: 'Tu hogar es tuyo. Solo los miembros invitados pueden acceder.',
-            },
-            {
-              icon: Smartphone,
-              title: 'Siempre disponible',
-              desc: 'Funciona en celular y computadora. Accedé desde donde sea.',
-            },
-          ].map((item, i) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="text-center p-6"
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center mx-auto mb-4"
-                style={{
-                  background: 'rgba(99,102,241,0.1)',
-                  border: '1px solid rgba(99,102,241,0.2)',
-                }}
-              >
-                <item.icon className="w-5 h-5" style={{ color: '#818cf8' }} />
-              </div>
-              <h3 className="font-semibold text-sm text-white mb-2">{item.title}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.4)' }}>{item.desc}</p>
-            </motion.div>
-          ))}
-        </div>
+        {secciones.map(s => (
+          <div key={s.num} style={{
+            display: 'flex', alignItems: 'baseline', gap: 12, padding: '11px 0',
+            borderBottom: '1px solid var(--color-rule-soft)',
+          }}>
+            <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 11, color: 'var(--color-ink-3)', width: 22 }}>{s.num}</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: s.dot, border: '1px solid var(--color-ink)', alignSelf: 'center', flexShrink: 0 }} />
+            <span style={{ fontFamily: 'var(--font-plex-serif)', fontStyle: 'italic', fontSize: 18, color: 'var(--color-ink)' }}>{s.name}</span>
+            <span style={{ flex: 1, fontSize: 12, color: 'var(--color-ink-2)' }}>{s.desc}</span>
+          </div>
+        ))}
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-4 text-center relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(99,102,241,0.1) 0%, transparent 70%)',
-          }}
-        />
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="relative"
-        >
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4" style={{ color: 'white' }}>
-            ¿Listo para organizarse?
-          </h2>
-          <p className="text-base mb-9" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Es gratis. Tarda menos de un minuto.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 hover:scale-[1.02]"
-            style={{
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              boxShadow: '0 0 32px rgba(99,102,241,0.35)',
-            }}
-          >
-            Crear mi hogar <ArrowRight className="w-4 h-4" />
-          </Link>
-        </motion.div>
+      <section style={{ maxWidth: 480, margin: '0 auto', padding: '56px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+          <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
+          <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 10, color: 'var(--color-ink-3)', letterSpacing: '0.1em' }}>EMPEZAR</span>
+          <span style={{ height: 1, background: 'var(--color-ink)', flex: 1 }} />
+        </div>
+        <h2 style={{
+          fontFamily: 'var(--font-plex-serif)', fontWeight: 500, fontStyle: 'italic',
+          fontSize: 32, letterSpacing: '-0.015em', margin: '0 0 12px',
+          color: 'var(--color-ink)',
+        }}>
+          ¿Listo para organizarse?
+        </h2>
+        <p style={{ fontSize: 14, color: 'var(--color-ink-2)', marginBottom: 24 }}>
+          Es gratis. Tarda menos de un minuto.
+        </p>
+        <Link href="/login" style={{
+          fontFamily: 'var(--font-plex-mono)', fontSize: 12,
+          background: 'var(--color-primary)', color: 'var(--color-bg)',
+          padding: '14px 28px', borderRadius: 4, letterSpacing: '0.08em',
+          textDecoration: 'none', textTransform: 'uppercase',
+          display: 'inline-block',
+        }}>
+          Crear mi hogar →
+        </Link>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8 px-4" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div
-              className="w-6 h-6 rounded-md flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-            >
-              <svg viewBox="0 0 20 20" fill="none" className="w-3.5 h-3.5">
-                <path d="M10 3L17 9V17H13V13H7V17H3V9L10 3Z" fill="white" />
-              </svg>
-            </div>
-            <span className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.5)' }}>Nido</span>
-          </div>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
-            Organizá tu hogar, simplificá tu vida.
-          </p>
-        </div>
+      <footer style={{
+        borderTop: '1.5px solid var(--color-ink)',
+        padding: '16px 24px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <NidoLogo size={16} />
+        <span style={{ fontFamily: 'var(--font-plex-mono)', fontSize: 9, color: 'var(--color-ink-3)', letterSpacing: '0.08em' }}>
+          VOL. 01 · 2026
+        </span>
       </footer>
+
     </div>
   )
 }

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -8,8 +8,9 @@ import { toast } from 'sonner'
 import { ArrowLeft, Plus, ShoppingCart, Trash2, Package, User, Flag, Check } from 'lucide-react'
 import { SkeletonList, SkeletonStat } from '@/components/Skeleton'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import PageHeader from '@/components/PageHeader'
 
-// ─── Types & constants ────────────────────────────────────────────────────────
+// â”€â”€â”€ Types & constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type Compra = {
   id: string
@@ -47,26 +48,27 @@ function formatMonto(monto: number) {
   }).format(monto)
 }
 
-// ─── Design helpers ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Design helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const card = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.07)',
-  borderRadius: 16,
+  background: 'var(--color-paper)',
+  border: '1.5px solid var(--color-ink)',
+  borderRadius: 2,
 }
 
 const inputStyle = {
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.09)',
-  borderRadius: 12,
+  background: 'transparent',
+  border: 0,
+  borderBottom: '1.5px solid var(--color-ink)',
+  borderRadius: 0,
 }
 
 const primaryBtn = {
-  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-  boxShadow: '0 4px 12px rgba(99,102,241,0.2)',
+  background: 'var(--color-primary)',
+  boxShadow: 'none',
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function ComprasPage() {
   const [compras, setCompras] = useState<Compra[]>([])
@@ -153,7 +155,7 @@ export default function ComprasPage() {
   const totalGastado = comprados.reduce((acc, c) => acc + Number(c.monto || 0), 0)
 
   return (
-    <div className="p-5 pb-8">
+    <div style={{ minHeight: '100vh' }}>
       <ConfirmDialog
         open={!!confirmId}
         title="¿Eliminar ítem?"
@@ -162,29 +164,17 @@ export default function ComprasPage() {
         onCancel={() => setConfirmId(null)}
       />
 
-      <div className="max-w-lg mx-auto">
+      <PageHeader
+        sectionNum="03"
+        sectionLabel="Compras"
+        right={`${pendientes.length} ITEMS`}
+        title="Lista del super."
+        sub={totalPendiente > 0 ? `total estimado · ${formatMonto(totalPendiente)}` : 'lista compartida'}
+      />
 
-        {/* ── Header ── */}
-        <motion.div
-          initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-6 pt-2"
-        >
-          <Link href="/dashboard">
-            <motion.div
-              whileTap={{ scale: 0.9 }}
-              className="p-1 cursor-pointer transition-colors"
-              style={{ color: 'rgba(255,255,255,0.5)' }}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </motion.div>
-          </Link>
-          <div className="flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5" style={{ color: '#10b981' }} />
-            <h1 className="text-xl font-bold text-white">Compras</h1>
-          </div>
-        </motion.div>
+      <div className="page-content">
 
-        {/* ── Stats ── */}
+        {/* â”€â”€ Stats â”€â”€ */}
         {!iniciado && (
           <div className="grid grid-cols-2 gap-3 mb-5">
             <SkeletonStat />
@@ -199,23 +189,23 @@ export default function ComprasPage() {
             className="grid grid-cols-2 gap-3 mb-5"
           >
             <div style={card} className="p-4">
-              <p className="text-xs mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Por comprar</p>
+              <p className="text-xs mb-1" style={{ color: 'var(--color-ink-2)' }}>Por comprar</p>
               <p className="text-xl font-bold" style={{ color: '#10b981' }}>{formatMonto(totalPendiente)}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-3)' }}>
                 {pendientes.length} ítem{pendientes.length !== 1 ? 's' : ''}
               </p>
             </div>
             <div style={card} className="p-4">
-              <p className="text-xs mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>Ya gastado</p>
+              <p className="text-xs mb-1" style={{ color: 'var(--color-ink-2)' }}>Ya gastado</p>
               <p className="text-xl font-bold text-white">{formatMonto(totalGastado)}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-ink-3)' }}>
                 {comprados.length} comprado{comprados.length !== 1 ? 's' : ''}
               </p>
             </div>
           </motion.div>
         )}
 
-        {/* ── Add form ── */}
+        {/* â”€â”€ Add form â”€â”€ */}
         <motion.form
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -230,8 +220,8 @@ export default function ComprasPage() {
               value={item}
               onChange={e => setItem(e.target.value)}
               required
-              style={{ ...inputStyle, color: '#fff', fontSize: 14, padding: '10px 16px' }}
-              className="flex-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 placeholder-[rgba(255,255,255,0.25)] transition-all"
+              style={{ ...inputStyle, color: 'var(--color-ink)', fontSize: 14, padding: '10px 16px' }}
+              className="flex-1 text-sm focus:outline-none placeholder-[var(--color-ink-3)] transition-all"
             />
             <motion.button
               type="submit"
@@ -264,9 +254,9 @@ export default function ComprasPage() {
                       ? isUrgente
                         ? { background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }
                         : isBaja
-                          ? { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)' }
+                          ? { background: 'var(--color-paper)', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-2)' }
                           : { background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', color: '#10b981' }
-                      : { background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.25)' }
+                      : { background: 'transparent', border: '1px solid var(--color-rule-soft)', color: 'var(--color-ink-3)' }
                   }
                 >
                   <Flag className="w-3 h-3" /> {p.label}
@@ -277,7 +267,7 @@ export default function ComprasPage() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>
                 Cantidad
               </label>
               <input
@@ -285,12 +275,12 @@ export default function ComprasPage() {
                 min={1}
                 value={cantidad}
                 onChange={e => setCantidad(Number(e.target.value))}
-                style={{ ...inputStyle, color: '#fff', fontSize: 14, padding: '8px 12px', width: '100%' }}
-                className="focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all"
+                style={{ ...inputStyle, color: 'var(--color-ink)', fontSize: 14, padding: '8px 12px', width: '100%' }}
+                className="focus:outline-none transition-all"
               />
             </div>
             <div>
-              <label className="text-xs mb-1 block" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <label className="text-xs mb-1 block" style={{ color: 'var(--color-ink-2)' }}>
                 Precio estimado
               </label>
               <input
@@ -300,22 +290,22 @@ export default function ComprasPage() {
                 onChange={e => setMonto(e.target.value)}
                 min={0}
                 step="0.01"
-                style={{ ...inputStyle, color: '#fff', fontSize: 14, padding: '8px 12px', width: '100%' }}
-                className="focus:outline-none focus:ring-2 focus:ring-indigo-500/40 placeholder-[rgba(255,255,255,0.2)] transition-all"
+                style={{ ...inputStyle, color: 'var(--color-ink)', fontSize: 14, padding: '8px 12px', width: '100%' }}
+                className="focus:outline-none placeholder-[var(--color-ink-3)] transition-all"
               />
             </div>
           </div>
         </motion.form>
 
-        {/* ── Loading skeleton ── */}
+        {/* â”€â”€ Loading skeleton â”€â”€ */}
         {!iniciado && <SkeletonList count={3} />}
 
-        {/* ── Pendientes ── */}
+        {/* â”€â”€ Pendientes â”€â”€ */}
         {iniciado && pendientes.length > 0 && (
           <div className="mb-5">
             <p
               className="text-xs font-medium uppercase tracking-wider mb-2 px-1"
-              style={{ color: 'rgba(255,255,255,0.25)' }}
+              style={{ color: 'var(--color-ink-3)' }}
             >
               Por comprar
             </p>
@@ -328,10 +318,10 @@ export default function ComprasPage() {
                   exit={{ opacity: 0, x: 16, height: 0 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   style={{
-                    background: 'rgba(255,255,255,0.03)',
+                    background: 'var(--color-paper)',
                     border: compra.prioridad === 'urgente'
                       ? '1px solid rgba(239,68,68,0.2)'
-                      : '1px solid rgba(255,255,255,0.07)',
+                      : '1px solid var(--color-rule-soft)',
                     borderRadius: 14,
                   }}
                   className="p-4 mb-2 flex items-center gap-3"
@@ -340,18 +330,18 @@ export default function ComprasPage() {
                     whileTap={{ scale: 0.85 }}
                     onClick={() => toggleComprado(compra)}
                     className="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center transition-all cursor-pointer"
-                    style={{ border: '1.5px solid rgba(255,255,255,0.15)', background: 'transparent' }}
+                    style={{ border: '1.5px solid var(--color-ink)', background: 'transparent' }}
                     onMouseEnter={e => {
                       (e.currentTarget as HTMLButtonElement).style.borderColor = '#10b981'
                     }}
                     onMouseLeave={e => {
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)'
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-rule-soft)'
                     }}
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-medium">{compra.item}</p>
                     <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                      <span className="flex items-center gap-1 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                      <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-ink-2)' }}>
                         x{compra.cantidad} · <User className="w-2.5 h-2.5" />{nombreMiembro(compra.creado_por)}
                       </span>
                       {compra.prioridad === 'urgente' && (
@@ -370,9 +360,9 @@ export default function ComprasPage() {
                         <span
                           className="text-xs px-1.5 py-0.5 rounded-md"
                           style={{
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.07)',
-                            color: 'rgba(255,255,255,0.3)',
+                            background: 'var(--color-paper)',
+                            border: '1px solid var(--color-rule-soft)',
+                            color: 'var(--color-ink-2)',
                           }}
                         >
                           Baja
@@ -389,7 +379,7 @@ export default function ComprasPage() {
                     whileTap={{ scale: 0.85 }}
                     onClick={() => setConfirmId(compra.id)}
                     className="transition-colors cursor-pointer p-1 hover:text-red-400"
-                    style={{ color: 'rgba(255,255,255,0.2)' }}
+                    style={{ color: 'var(--color-ink-3)' }}
                   >
                     <Trash2 className="w-4 h-4" />
                   </motion.button>
@@ -399,12 +389,12 @@ export default function ComprasPage() {
           </div>
         )}
 
-        {/* ── Comprados ── */}
+        {/* â”€â”€ Comprados â”€â”€ */}
         {iniciado && comprados.length > 0 && (
           <div>
             <p
               className="text-xs font-medium uppercase tracking-wider mb-2 px-1"
-              style={{ color: 'rgba(255,255,255,0.25)' }}
+              style={{ color: 'var(--color-ink-3)' }}
             >
               Comprado ({comprados.length})
             </p>
@@ -427,15 +417,15 @@ export default function ComprasPage() {
                     <Check className="w-3 h-3 text-white" strokeWidth={3} />
                   </motion.button>
                   <div className="flex-1">
-                    <p className="text-sm line-through" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    <p className="text-sm line-through" style={{ color: 'var(--color-ink-2)' }}>
                       {compra.item}
                     </p>
-                    <span className="flex items-center gap-1 text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                    <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--color-ink-3)' }}>
                       <User className="w-2.5 h-2.5" />{nombreMiembro(compra.creado_por)}
                     </span>
                   </div>
                   {compra.monto > 0 && (
-                    <span className="text-sm line-through" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                    <span className="text-sm line-through" style={{ color: 'var(--color-ink-3)' }}>
                       {formatMonto(Number(compra.monto))}
                     </span>
                   )}
@@ -443,7 +433,7 @@ export default function ComprasPage() {
                     whileTap={{ scale: 0.85 }}
                     onClick={() => setConfirmId(compra.id)}
                     className="transition-colors cursor-pointer p-1 hover:text-red-400"
-                    style={{ color: 'rgba(255,255,255,0.2)' }}
+                    style={{ color: 'var(--color-ink-3)' }}
                   >
                     <Trash2 className="w-4 h-4" />
                   </motion.button>
@@ -453,16 +443,16 @@ export default function ComprasPage() {
           </div>
         )}
 
-        {/* ── Empty state ── */}
+        {/* â”€â”€ Empty state â”€â”€ */}
         {iniciado && compras.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="text-center mt-16"
           >
-            <Package className="w-12 h-12 mx-auto mb-3" style={{ color: 'rgba(255,255,255,0.1)' }} />
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.25)' }}>La lista está vacía</p>
-            <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            <Package className="w-12 h-12 mx-auto mb-3" style={{ color: 'var(--color-ink-3)' }} />
+            <p className="text-sm" style={{ color: 'var(--color-ink-3)' }}>La lista está vacía</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--color-ink-3)' }}>
               Agregá lo que necesitás comprar
             </p>
           </motion.div>
@@ -472,3 +462,9 @@ export default function ComprasPage() {
     </div>
   )
 }
+
+
+
+
+
+

@@ -1,15 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020617;
-  --foreground: #f1f5f9;
+  --color-bg: #FBF8F1;
+  --color-paper: #FFFDF7;
+  --color-ink: #2D2418;
+  --color-ink-2: #5A4F3D;
+  --color-ink-3: #8A7E68;
+  --color-rule-soft: rgba(45,36,24,0.15);
+  --color-primary: #4A6440;
+  --color-warm: #A8642A;
+  --color-blush: #E6C4B0;
+  --color-sand: #E0CFA8;
+  --color-sky: #BCC8D6;
+  --color-sage: #C7D3B0;
+  --color-cream: #F5E6C8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
+  --font-serif: var(--font-plex-serif);
+  --font-mono: var(--font-plex-mono);
+  --font-sans: var(--font-plex-sans);
 }
 
 * {
@@ -17,16 +29,29 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-plex-sans), -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 31px,
+    rgba(45,36,24,0.04) 31px,
+    rgba(45,36,24,0.04) 32px
+  );
+}
+
+input,
+textarea,
+select {
+  font-family: var(--font-plex-sans), -apple-system, sans-serif;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) opacity(0.5);
+  filter: opacity(0.4);
   cursor: pointer;
 }
 
@@ -36,12 +61,31 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: rgba(45,36,24,0.2);
+  border-radius: 0;
+}
+
+/* ── Legacy override: pages still migrating from dark theme ── */
+/* Only override text-white on actual text elements, not buttons/icons */
+:is(p, span, h1, h2, h3, h4, li, label).text-white { color: var(--color-ink) !important; }
+.text-slate-300, .text-slate-400, .text-slate-500 { color: var(--color-ink-2) !important; }
+.placeholder-\[rgba\(255\2c255\2c255\2c0\.25\)\]::placeholder { color: var(--color-ink-3) !important; }
+.placeholder-white\/25::placeholder { color: var(--color-ink-3) !important; }
+.border-white\/15 { border-color: var(--color-rule-soft) !important; }
+.bg-slate-950, .bg-\[\#09090b\] { background: var(--color-bg) !important; }
+
+/* ── Responsive content wrapper ── */
+.page-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+@media (min-width: 768px) {
+  .page-content { max-width: 720px; }
 }
