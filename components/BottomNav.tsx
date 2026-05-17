@@ -12,6 +12,7 @@ const tabs = [
   { href: '/dashboard/recordatorios', num: '06', label: 'Agenda'   },
   { href: '/dashboard/diario',        num: '07', label: 'Diario'   },
   { href: '/dashboard/habitos',       num: '08', label: 'Hábitos'  },
+  { href: '/dashboard/ropa',          num: '09', label: 'Armario'  },
 ]
 
 export default function BottomNav() {
@@ -25,12 +26,14 @@ export default function BottomNav() {
         background: 'var(--color-bg)',
         backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(45,36,24,0.04) 31px, rgba(45,36,24,0.04) 32px)',
         borderTop: '1.5px solid var(--color-ink)',
-        display: 'flex',
-        justifyContent: 'space-between',
         zIndex: 50,
         paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
-      }}
+        overflowX: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      } as React.CSSProperties}
     >
+      <div style={{ display: 'flex', minWidth: 'max-content', width: '100%' }}>
       {tabs.map((tab) => {
         const active = pathname === tab.href
         return (
@@ -38,6 +41,7 @@ export default function BottomNav() {
             key={tab.href}
             href={tab.href}
             style={{
+              minWidth: 64,
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
@@ -61,6 +65,7 @@ export default function BottomNav() {
           </Link>
         )
       })}
+      </div>
     </nav>
   )
 }

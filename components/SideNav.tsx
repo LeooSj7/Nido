@@ -12,6 +12,7 @@ const tabs = [
   { href: '/dashboard/recordatorios', num: '06', label: 'Agenda'        },
   { href: '/dashboard/diario',        num: '07', label: 'Diario'        },
   { href: '/dashboard/habitos',       num: '08', label: 'Hábitos'       },
+  { href: '/dashboard/ropa',          num: '09', label: 'Armario'       },
 ]
 
 export default function SideNav() {

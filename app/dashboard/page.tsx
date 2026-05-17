@@ -129,6 +129,7 @@ export default function DashboardPage() {
     comprasPendientes: 0,
     presupuesto: 0,
     tareasUrgentes: 0,
+    prendas: 0,
   })
 
   // currency picker
@@ -164,7 +165,7 @@ export default function DashboardPage() {
       const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
         .toISOString().split('T')[0]
 
-      const [casa, tareas, tareasUrg, recordatorios, gastos, compras, actividadData] =
+      const [casa, tareas, tareasUrg, recordatorios, gastos, compras, actividadData, prendas] =
         await Promise.all([
           supabase.from('casas').select('nombre, codigo, presupuesto_mensual').eq('id', cid).single(),
           supabase.from('tareas').select('id', { count: 'exact' }).eq('casa_id', cid).eq('completada', false),
@@ -173,6 +174,7 @@ export default function DashboardPage() {
           supabase.from('gastos').select('monto').eq('casa_id', cid).gte('fecha', inicioMes),
           supabase.from('compras').select('id', { count: 'exact' }).eq('casa_id', cid).eq('comprado', false),
           supabase.from('actividad').select('*').eq('casa_id', cid).order('creado_at', { ascending: false }).limit(4),
+          supabase.from('prendas').select('id', { count: 'exact' }).eq('usuario_id', user.id),
         ])
 
       if (casa.data) { setCasaNombre(casa.data.nombre); setCasaCodigo(casa.data.codigo) }
@@ -185,6 +187,7 @@ export default function DashboardPage() {
         comprasPendientes:   compras.count ?? 0,
         presupuesto:         Number(casa.data?.presupuesto_mensual) || 0,
         tareasUrgentes:      tareasUrg.count ?? 0,
+        prendas:             prendas.count ?? 0,
       })
       setCargado(true)
     }
@@ -220,6 +223,7 @@ export default function DashboardPage() {
     ['/dashboard/recordatorios', '06', 'Agenda',  resumen.proximoRecordatorio ?? 'Sin próximos',                   resumen.proximoRecordatorio ? '1+' : '—',                                  'var(--color-sky)'  ],
     ['/dashboard/diario',        '07', 'Diario',  'Lo que fue el día',                                             'escribir',                                                                'var(--color-sand)' ],
     ['/dashboard/habitos',       '08', 'Hábitos', 'Construí consistencia día a día',                               'racha',                                                                   'var(--color-sage)' ],
+    ['/dashboard/ropa',          '09', 'Armario', `${resumen.prendas} prendas`,                                     `${resumen.prendas}`,                                                      'var(--color-blush)'],
   ]
 
   return (
